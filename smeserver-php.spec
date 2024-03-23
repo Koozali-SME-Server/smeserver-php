@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 1
+%define release 2
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -13,9 +13,9 @@ Source: %{name}-%{version}.tar.xz
 
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArch: x86_64
-BuildRequires: e-smith-devtools
+BuildRequires: smeserver-devtools
 
-Requires: e-smith-base >= 5.6.0
+Requires: smeserver-base >= 5.6.0
 Provides: e-smith-php = %{version}-%{release}
 Obsoletes: e-smith-php < %{version}
 Provides: smeserver-webapps-common
@@ -378,6 +378,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Sat Mar 23 2024 Brian Read <brianr@koozali.org>11.0.0-2.sme
+- Change Requires: e-smith- to Requires:smeserver-
+
 * Sat Mar 23 2024 Brian Read <brianr@koozali.org>11.0.0-1.sme
 - Update Release and Version to base version and 1st release for SME11 [SME: 12518]
 
