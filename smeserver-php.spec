@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 2
+%define release 3
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -19,15 +19,13 @@ Requires: smeserver-base >= 5.6.0
 Provides: e-smith-php = %{version}-%{release}
 Obsoletes: e-smith-php < %{version}
 Provides: smeserver-webapps-common
-Provides: php(language) = 7.0
-Provides: php(language) = 7.1
-Provides: php(language) = 7.2
-Provides: php(language) = 7.3
-Provides: php(language) = 7.4
-Provides: php(language) = 8.0
-Provides: php(language) = 8.1
-Provides: php(language) = 8.2
-Provides: php(language) = 8.3
+#Provides: php(language) = 7.2
+#Provides: php(language) = 7.3
+#Provides: php(language) = 7.4
+#Provides: php(language) = 8.0
+#Provides: php(language) = 8.1
+#Provides: php(language) = 8.2
+#Provides: php(language) = 8.3
 Requires: tmpwatch
 Requires: logrotate
 
@@ -50,91 +48,6 @@ Requires: php-mcrypt
 Requires: php-pear
 Requires: php-process
 Requires: php-snmp
-
-
-# PHP 5.5
-Requires: php55-php-cli
-Requires: php55-php-ldap
-Requires: php55-php-imap
-Requires: php55-php-gd
-Requires: php55-php-xml
-Requires: php55-php-xmlrpc
-Requires: php55-php-soap
-Requires: php55-php-opcache
-Requires: php55-php-fpm
-Requires: php55-php-mbstring
-Requires: php55-php-mysql
-Requires: php55-php-json
-Requires: php55-php-bcmath
-Requires: php55-php-intl
-Requires: php55-php-mcrypt
-Requires: php55-php-pear
-Requires: php55-php-process
-Requires: php55-php-snmp
-Requires: php55-php, php55-php-enchant , php55-php-pdo php55-php-tidy ,  php55-php-mysqlnd php55-php-pecl-zip
-
-# PHP 5.6
-Requires: php56-php-cli
-Requires: php56-php-ldap
-Requires: php56-php-imap
-Requires: php56-php-gd
-Requires: php56-php-xml
-Requires: php56-php-xmlrpc
-Requires: php56-php-soap
-Requires: php56-php-opcache
-Requires: php56-php-fpm
-Requires: php56-php-mbstring
-Requires: php56-php-mysql
-Requires: php56-php-json
-Requires: php56-php-bcmath
-Requires: php56-php-intl
-Requires: php56-php-mcrypt
-Requires: php56-php-pear
-Requires: php56-php-process
-Requires: php56-php-snmp
-Requires: php56-php, php56-php-enchant , php56-php-pdo php56-php-tidy ,  php56-php-mysqlnd php56-php-pecl-zip
-
-# PHP 7.0
-Requires: php70-php-cli
-Requires: php70-php-ldap
-Requires: php70-php-imap
-Requires: php70-php-gd
-Requires: php70-php-xml
-Requires: php70-php-xmlrpc
-Requires: php70-php-soap
-Requires: php70-php-opcache
-Requires: php70-php-fpm
-Requires: php70-php-mbstring
-Requires: php70-php-mysql
-Requires: php70-php-json
-Requires: php70-php-bcmath
-Requires: php70-php-intl
-Requires: php70-php-mcrypt
-Requires: php70-php-pear
-Requires: php70-php-process
-Requires: php70-php-snmp
-Requires: php70-php, php70-php-enchant , php70-php-pdo php70-php-tidy ,  php70-php-mysqlnd php70-php-pecl-zip
-
-# PHP 7.1
-Requires: php71-php-cli
-Requires: php71-php-ldap
-Requires: php71-php-imap
-Requires: php71-php-gd
-Requires: php71-php-xml
-Requires: php71-php-xmlrpc
-Requires: php71-php-soap
-Requires: php71-php-opcache
-Requires: php71-php-fpm
-Requires: php71-php-mbstring
-Requires: php71-php-mysql
-Requires: php71-php-json
-Requires: php71-php-bcmath
-Requires: php71-php-intl
-Requires: php71-php-mcrypt
-Requires: php71-php-pear
-Requires: php71-php-process
-Requires: php71-php-snmp
-Requires: php71-php, php71-php-enchant , php71-php-pdo php71-php-tidy ,  php71-php-mysqlnd php71-php-pecl-zip
 
 # PHP 7.2
 Requires: php72-php-cli
@@ -296,7 +209,7 @@ echo "[Install]" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 
 %{__mkdir_p} root/etc/e-smith/templates.metadata/etc/logrotate.d/
-for phpver in "55" "56" "70" "71" "72" "73" "74" "80" "81" "82" "83"; do
+for phpver in "72" "73" "74" "80" "81" "82" "83"; do
 #needed folder
 %{__mkdir_p} root/var/log/php/php$phpver/
 %{__mkdir_p} root/var/lib/php/php$phpver/{session,tmp,opcache,wsdlcache}
@@ -319,16 +232,6 @@ MORE_DATA={ PHP_VERSION => '$phpver'}' > root/etc/e-smith/templates.metadata/etc
 echo "[Install]" > root/usr/lib/systemd/system/php$phpver-php-fpm.service.d/51koozali.conf
 echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php$phpver-php-fpm.service.d/51koozali.conf
  
-done
-
-#to add a new php version
-#php5*
-for phpver in  "55" ; do
-#cp php56 metadata
-mkdir -p  root/etc/e-smith/templates.metadata/opt/remi/php$phpver
-cp -a  root/etc/e-smith/templates.metadata/opt/remi/php56/* root/etc/e-smith/templates.metadata/opt/remi/php$phpver
-#sed inplace
-find root/etc/e-smith/templates.metadata/opt/remi/php$phpver  -type f -print0 | xargs -0 sed -i 's/56/'$phpver'/g'
 done
 
 # php7*
@@ -359,7 +262,7 @@ done
   --dir /var/lib/php/php/tmp 'attr(0770,root,www)' \
   --dir /var/lib/php/php/opcache 'attr(0770,root,www)' \
   --dir /var/lib/php/php/wsdlcache 'attr(0770,root,www)' \
-`for phpver in "54" "55" "56" "70" "71" "72" "73" "74" "80" "81" "82" "83"; do  echo -n "--dir /var/log/php/php$phpver attr(0770,root,www) --dir /var/lib/php/php$phpver/session attr(0770,root,www) --dir /var/lib/php/php$phpver/tmp attr(0770,root,www) --dir /var/lib/php/php$phpver/opcache attr(0770,root,www) --dir /var/lib/php/php$phpver/wsdlcache attr(0770,root,www) ";done `	\
+`for phpver in "72" "73" "74" "80" "81" "82" "83"; do  echo -n "--dir /var/log/php/php$phpver attr(0770,root,www) --dir /var/lib/php/php$phpver/session attr(0770,root,www) --dir /var/lib/php/php$phpver/tmp attr(0770,root,www) --dir /var/lib/php/php$phpver/opcache attr(0770,root,www) --dir /var/lib/php/php$phpver/wsdlcache attr(0770,root,www) ";done `	\
   > %{name}-%{version}-filelist
 
 
@@ -378,6 +281,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Sat Mar 23 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-3.sme
+- drop support for php < 7.2 [SME: 12521]
+
 * Sat Mar 23 2024 Brian Read <brianr@koozali.org>11.0.0-2.sme
 - Change Requires: e-smith- to Requires:smeserver-
 
