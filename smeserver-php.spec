@@ -1,7 +1,7 @@
 %define version 3.0.0
-%define release 49
+%define release 50
 %define name smeserver-php
-
+%global debug_package %{nil}
 
 Summary: PHP FPM pools and more on SME Server
 Name: %{name}
