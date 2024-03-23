@@ -1,0 +1,52 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use esmith::AccountsDB;
+use File::Path qw(make_path remove_tree);
+use esmith::util;
+
+my $a = esmith::AccountsDB->open_ro || die "Couldn't open the accounts database\n";
+
+my $event = shift;
+my $apool = shift;
+
+my @pools = (defined $apool && $a->get($apool) ) ? map { $a->get($_); } $apool  : ( $a->get_all_by_prop(type => "ibay" ) , $a->get_all_by_prop(type => "share" ));# unless $acc;
+
+foreach my $acc (@pools){
+  my $pool = $acc->key;
+  my $type = $acc->prop('type');
+  my $dyn = 'disabled';
+  if ( $type eq "ibay") {
+    	$dyn = $acc->prop('CgiBin') || 'disabled';
+  }
+  else {
+    	$dyn = $acc->prop('DynamicContent') || 'disabled';
+  }
+  
+  if ($dyn =~ m/^enabled|on|1|yes$/ && $event ne 'share-delete' && $event ne 'ibay-delete'){
+  	my @dirs = ( "/var/log/php/$pool",
+               "/var/lib/php/$pool/session",
+               "/var/lib/php/$pool/wsdlcache",
+               "/var/lib/php/$pool/opcache",
+               "/var/lib/php/$pool/tmp" );
+	# create dir if does not exist; set owner and group if create it
+	# does not change ownership if folder already exists
+        for (@dirs){
+                esmith::util::chownFile("root", "www", $_) if -e $_;
+		make_path( $_, {
+               		owner => 'root',
+               		group => 'www'
+        	}) unless -e $_;
+        }
+  	chmod 0770, @dirs;
+  }
+}
+
+if ( defined $event && defined $apool && ($event eq 'share-delete' || $event eq 'ibay-delete') ) {
+	my $acc = $a->get($apool);
+	die "$apool not found in the account database\n" unless $acc;
+        remove_tree(  "/var/log/php/$apool",
+                       "/var/lib/php/$apool"  );
+}
+

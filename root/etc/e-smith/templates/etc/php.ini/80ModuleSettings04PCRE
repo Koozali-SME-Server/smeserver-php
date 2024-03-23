@@ -1,0 +1,8 @@
+[Pcre]
+{
+return "" if $PHP_VERSION eq "";
+if ( $PHP_VERSION >= 70)
+  {
+$OUT .="pcre.jit                               = Off\n";
+  }
+}

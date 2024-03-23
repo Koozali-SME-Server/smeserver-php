@@ -1,0 +1,49 @@
+[Session]
+session.save_handler                   = files
+session.save_path                      = {"/var/lib/php/php$PHP_VERSION/session"}
+session.use_cookies                    = On
+session.use_only_cookies               = On
+session.name                           = PHPSESSID  
+session.auto_start                     = Off
+session.cookie_lifetime                = 0
+session.cookie_path                    = /
+session.cookie_domain                  =
+session.cookie_httponly                =
+session.serialize_handler              = php
+session.gc_probability                 = 1
+session.gc_divisor                     = 1000
+session.gc_maxlifetime                 = 1440
+session.bug_compat_42	               = Off
+session.bug_compat_warn	               = Off
+session.referer_check                  =
+session.entropy_length                 = 0
+session.entropy_file                   =
+session.cache_limiter                  = nocache
+session.cache_expire                   = 180
+session.use_trans_sid                  = On
+url_rewriter.tags                      = "a=href,area=href,frame=src,input=src,form=fakeentry"
+{
+return "" if $PHP_VERSION eq "";
+if ( $PHP_VERSION >= 55)
+  {
+     $OUT .= "session.use_strict_mode                = Off\n";
+     $OUT .= "sys_temp_dir                           = /var/lib/php/php$PHP_VERSION/tmp\n";
+  }
+if ( $PHP_VERSION < 71)
+  {
+     $OUT .= "session.hash_bits_per_character        = 5 
+session.hash_function 	               = 0
+session.entropy_file 	               = 
+session.entropy_length 	               = 0\n";
+  }
+if ( $PHP_VERSION >= 71)
+  {  
+     $OUT .= "session.sid_bits_per_character 	       = 4
+session.sid_length 	               = 32
+session.trans_sid_tags                 = \"a=href,area=href,frame=src,form=\"\n";
+ }
+if ( $PHP_VERSION >= 73)
+  {
+     $OUT .= "session.cookie_samesite                  = \"Strict\"\n";
+  }
+}

@@ -1,0 +1,4 @@
+error_log = syslog
+syslog.facility = daemon
+syslog.ident = php{ $PHP_VERSION }-fpm
+

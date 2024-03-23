@@ -1,0 +1,161 @@
+{
+
+use esmith::util;
+my $base = esmith::util::ldapBase($DomainName);
+
+my $name = $domain->key;
+my $target = $domain->prop('ProxyPassTarget') || '';
+my $proxy_acme = $domain->prop('ProxyPassACMEChallenges') || 'disabled';
+my $redirect = $domain->prop('Redirect') || '';
+my $rewrite = $domain->prop('Rewrite') || '';
+my $allow = $domain->prop('AllowHosts') || '';
+my $preserve = $domain->prop('ProxyPreserveHost') || 'no';
+my $keepalive = $domain->prop('ProxyNoKeepAlive') || 'no';
+my $timeout = $domain->prop('Timeout') || '';
+my $index = $domain->prop('DirectoryIndex') || '';
+my @alias = split /[,;]/, ($domain->prop('Alias') || '');
+my @env = split(/[;,]/, ($domain->prop('SetEnv') || ''));
+my $auth = $domain->prop('Authentication') || 'none';
+my @groups = split(/[;,]/, ($domain->prop('AllowGroups') || ''));
+my $ssl_port = $httpsPort;
+my $proto = ($port eq $ssl_port ) ? 'https' : 'http';
+my $socketio = $domain->prop('ProxySocketIO') || 'disabled';
+my @proxyrules = split /[,;]/, ($domain->prop('ProxyPassRules') || '');
+
+# Custom proxypass rules
+foreach my $rule (@proxyrules){
+  my ($from, $to) = split /=/, $rule;
+  $OUT .= "    ProxyPass $from $to\n";
+}
+
+if (@proxyrules > 0 || $target =~ m|https?://[\d\w\.\-/]*|){
+  $OUT .= "    ProxyPreserveHost on\n" if ($preserve eq 'yes');
+  $OUT .= "    RequestHeader set X-Forwarded-Proto \"$proto\"\n";
+}
+
+# ProxyPass ?
+if ($target =~ m|https?://[\d\w\.\-/]*|){
+    $OUT .= "    SetEnv proxy-nokeepalive 1\n" if ($keepalive eq 'yes');
+    if ($proxy_acme eq 'only'){
+      $OUT .= "    ProxyPass /.well-known/acme-challenge/ $target" . ".well-known/acme-challenge/\n";
+      $OUT .= "    ProxyPassReverse / $target" . ".well-known/acme-challenge/\n";
+    }
+    else{
+      if ($proxy_acme eq 'disabled'){
+        $OUT .= "    ProxyPass /.well-known/acme-challenge/ !\n";
+      }
+      if ($socketio eq 'enabled'){
+        # Try to handle Socket.IO
+        my $wstarget = $target;
+        $wstarget =~ s/^http:/ws:/;
+        $wstarget =~ s/^https:/wss:/;
+        $OUT .=<<"_EOF"
+
+    <IfModule mod_proxy_wstunnel.c>
+      RewriteCond %{QUERY_STRING} transport=polling      [NC]
+      RewriteRule /socket.io/(.*) ${target}socket.io/\$1 [P,L]
+
+      ProxyPass /socket.io/socket.io.js ${target}socket.io/socket.io.js
+      ProxyPassReverse /socket.io/socket.io.js ${target}socket.io/socket.io.js
+
+      ProxyPass /socket.io/ ${wstarget}socket.io/
+      ProxyPassReverse /socket.io/ ${wstarget}socket.io/
+    </IfModule>
+
+_EOF
+      }
+      $OUT .= "    ProxyPass / $target\n";
+      $OUT .= "    ProxyPassReverse / $target\n";
+    }
+}
+# Rewrite ?
+elsif ($rewrite =~ m|https?://[\d\w\.\-/]*|){
+    $OUT .=<<"HERE";
+
+    RewriteCond %{REQUEST_URI} !^/.well-known/acme-challenge/.*
+    RewriteRule /(.*|\$) $rewrite/\$1 [L,R]
+
+HERE
+}
+# Redirect ?
+elsif ($redirect =~ m|https?://[\d\w\.\-/]*|){
+    $OUT .=<<"HERE";
+
+    RedirectMatch permanent ^/(.*|\$) $redirect/\$1
+
+HERE
+}
+else{
+    my $root = $domain->prop('DocumentRoot') ||
+        '/home/e-smith/files/ibays/Primary/html';
+
+    $OUT .= "    DocumentRoot $root\n";
+}
+
+if ($timeout =~ m/^\d+$/){
+    $OUT .= "    Timeout $timeout\n";
+}
+
+if ($index ne ''){
+    $OUT .= "    DirectoryIndex $index\n";
+}
+
+foreach (@alias){
+    next unless $_ =~ m/^(\/\w+)=(\/.*)/;
+    my ($al, $targ) = ($1, $2);
+    next unless (-e $2);
+    $OUT .= "    Alias $al $targ\n";
+}
+
+foreach (@env){
+    next unless (m/^(.*)=(.*)$/);
+    $OUT .= "    SetEnv $1 $2\n";
+}
+
+if ($allow ne ''){
+    if ($allow eq 'local'){
+        $allow = "$localAccess $externalSSLAccess";
+    }
+    else{
+        $allow =~ s/[,;]/ /g;
+    }
+    $OUT .=<<"EOF";
+
+    <Location />
+        Require ip  $allow
+    </Location>
+
+    <Location /.well-known/acme-challenge/>
+        Require all granted
+    </Location>
+
+EOF
+}
+
+if ($auth =~ m/^Basic$/i){
+    my $require = "Require valid-user";
+    if (scalar(@groups) > 0){
+        $require = "Require ldap-group ";
+        $require .= "cn=$_,ou=Groups,$base " foreach(@groups);
+    }
+
+    $OUT .=<<"EOF";
+    SetEnvIf %{Request_URI} "^/\.well\-known/acme\-challenge" granted
+
+    <Location />
+        Require env granted
+        AuthType basic
+        AuthName "$name"
+        AuthBasicProvider ldap
+        AuthLDAPURL ldap://localhost/ou=Users,$base?uid
+        AuthLDAPGroupAttribute memberUid
+        AuthLDAPGroupAttributeIsDN off
+        $require
+    </location>
+
+EOF
+
+}
+
+}
+

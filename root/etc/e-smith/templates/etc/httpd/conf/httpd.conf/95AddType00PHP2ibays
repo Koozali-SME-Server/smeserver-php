@@ -1,0 +1,92 @@
+{
+    use esmith::php;
+    my $status = $php{status} || 'disabled';
+    if ($status eq 'enabled')
+    {
+	use esmith::AccountsDB;
+	my $adb = esmith::AccountsDB->open_ro();
+	foreach my $ibay ($adb->ibays)
+	{
+	    my %properties = $ibay->props;
+	    my $key = $ibay->key;
+	    local $dynamicContent = $ibay->prop('CgiBin') || 'disabled';
+	    if ($dynamicContent eq 'enabled')
+	    {
+		$OUT .= "\n<Directory /home/e-smith/files/ibays/" . $ibay->key . "/html>\n";
+		# configuration to enable php-fpm for the ibay
+		my $version = PhpFpmVersionToUse($ibay);
+	        if ($fastcgi_mod eq 'mod_proxy_fcgi')
+		{
+		    my $name = lc $key;
+		    my $FilesMathes = ( ($ibay->prop('AllowPHTML') || $defaultPHPproperties{'AllowPHTML'}) eq 'enabled' ) ? '(xml|phtml|html|htm|php|phar)': '(phar|php)';
+
+		    $OUT .=<<"_EOF";
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=\$1
+    <FilesMatch \\.$FilesMathes\$>
+	<If "-f \%\{SCRIPT_FILENAME\}">
+        SetHandler "proxy:unix:/var/run/php-fpm/php$version-$name.sock|fcgi://localhost"
+	</If>
+    </FilesMatch>
+_EOF
+		}
+		else  
+		{
+		    my $FilesMathes = ( ($ibay->prop('AllowPHTML') || $defaultPHPproperties{'AllowPHTML'}) eq 'enabled' ) ? '.xml .phtml .html .htm ': '';
+		    $OUT .= "    AddType application/x-httpd-php .php .phar $FilesMathes\n";
+		    $OUT .= "    AddType application/x-httpd-php-source .phps\n";
+
+		    # the following block is only in case phpmodule is enabled.
+		    if (exists $php{status} and $php{status} eq "enabled" and $phpModule eq "enabled")
+                    {
+	        	my $allow_url_fopen = $properties{'AllowUrlFopen'} || $defaultPHPproperties{'AllowUrlFopen'} ;
+        		my $memoryLimit = $properties{'MemoryLimit'} || $defaultPHPproperties{'MemoryLimit'};
+        		my $upmaxfileSize = $properties{'UploadMaxFilesize'} || $defaultPHPproperties{'UploadMaxFilesize'};
+        		my $postmaxSize = $properties{'PostMaxSize'} || $defaultPHPproperties{'PostMaxSize'};
+			my $file_upload = $properties{'FileUpload'} || $defaultPHPproperties{'FileUpload'};
+        		my $maxexecutionTime = (defined $properties{'MaxExecutionTime'}) ? $properties{'MaxExecutionTime'} : $defaultPHPproperties{'MaxExecutionTime'};
+			my $max_input_time = (defined $properties{'MaxInputTime'}) ? $properties{'MaxInputTime'} : $defaultPHPproperties{'MaxInputTime'};
+			my $display_errors = $properties{'DisplayErrors'} || 'off'; 
+			my $error_reporting = $properties{'ErrorReporting'} || 'E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT';
+
+  			$maxexecutionTime = '0' if $maxexecutionTime eq 'unlimited';
+ 			$file_upload        = ($file_upload =~ m/^1|yes|on|enabled$/) ?     'on' : 'off';
+  			$allow_url_fopen    = ($allow_url_fopen =~ m/^1|yes|on|enabled$/) ? 'on' : 'off';
+			$display_errors     = ($display_errors  =~ m/^1|yes|on|enabled$/) ? 'on' : 'off';
+			$error_reporting    = ($error_reporting eq 'E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT') ? '; default error_reporting' : "php_value[error_reporting] = $error_reporting";
+
+                	$OUT .= "    php_admin_flag allow_url_fopen $allow_url_fopen\n";
+                	$OUT .= "    php_admin_value memory_limit $memoryLimit\n";
+                	$OUT .= "    php_admin_value upload_max_filesize $upmaxfileSize\n";
+                	$OUT .= "    php_admin_value post_max_size $postmaxSize\n" ;
+			$OUT .= "    php_admin_flag file_upload $file_upload\n";
+			$OUT .= "    php_admin_value max_input_time $max_input_time\n"; 
+                	$OUT .= "    php_admin_value max_execution_time $maxexecutionTime\n";
+                        $OUT .= "    php_flag display_errors $display_errors\n";
+			$OUT .= "    $error_reporting\n";
+
+		    	# Set  upload_tmp_dir and sys_temp_dir  where php can upload files or write tmp files
+                        $tmpdir= "/var/lib/php/$key/tmp";
+		    	$OUT .= "    php_admin_value upload_tmp_dir $tmpdir\n";
+                        $OUT .= "    php_admin_value sys_temp_dir $tmpdir\n";
+
+		    	# Set the session folder where php can store its session instead of in global dir
+		    	$sessdir = "/var/lib/php/$key/session";
+		    	$OUT .= "    php_admin_value session.save_path $sessdir\n";
+
+		    	# Set the sandbox within which PHP is confined to play
+		    	my $basedir = $ibay->prop('PHPBaseDir')
+				|| ("/home/e-smith/files/ibays/$key/");
+		    	$basedir .= ":/var/lib/php/$key/"; 
+			$basedir .= ":/usr/share/php/:/usr/share/pear/";
+			if ( -d "/opt/remi/php$version/root/usr/share/pear/" && -d "/opt/remi/php$version/root/usr/share/php/") 
+			{
+				$basedir .= ":/opt/remi/php$version/root/usr/share/pear/:/opt/remi/php$version/root/usr/share/php/"; 
+			}
+		    	$OUT .= "    php_admin_value open_basedir $basedir\n";
+                    }
+		}
+		$OUT .= "</Directory>\n";
+	    }
+	}
+    }
+}

@@ -1,0 +1,18 @@
+[mail function]
+SMTP                                   = localhost
+smtp_port                              = {($qpsmtpd{TCPPort} || '25')}
+; windows setting, but in case :
+sendmail_from                          = '{$phpcur->prop(MailForceSender)|| $php{'MailForceSender'} || "root\@$DomainName" }'
+sendmail_path                          = {($phpcur->prop(SendmailPath) || $php{"SendmailPath"} || '/usr/sbin/sendmail -t -i')}
+mail.force_extra_parameters 	       = '-f {$phpcur->prop(MailForceSender)|| $php{'MailForceSender'} || "root\@$DomainName" }'
+mail.log                               = { 
+	my $mailog = $phpcur->prop(MailLog) || $php{"MailLog"} || "disabled";
+	my $mlog = ($mailog eq "enabled")? "/var/log/php/php$PHP_VERSION/mail.log" : "";
+	$OUT .= "$mlog";
+}
+mail.add_x_header                      = {
+        my $axh = $php{MailAddXHeader} || "disabled";
+        my $ax = ($axh eq "enabled") ? "Yes" : "No";
+	$OUT .= "$ax";
+}
+

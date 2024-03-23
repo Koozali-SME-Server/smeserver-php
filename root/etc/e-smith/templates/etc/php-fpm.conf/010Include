@@ -1,0 +1,1 @@
+include={ $FPM_POOL_DIR }/*.conf

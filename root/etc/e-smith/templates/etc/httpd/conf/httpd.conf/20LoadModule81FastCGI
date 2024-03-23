@@ -1,0 +1,6 @@
+{
+$fastcgi_mod = 'mod_proxy_fcgi';
+  $OUT .=<<_EOF;
+LoadModule proxy_fcgi_module modules/mod_proxy_fcgi.so
+_EOF
+}

@@ -1,0 +1,3 @@
+[ldap]
+ldap.max_links                         = -1
+

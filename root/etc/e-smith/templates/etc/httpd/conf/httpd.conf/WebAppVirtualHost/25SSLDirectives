@@ -1,0 +1,28 @@
+{
+    my $ssl = $domain->prop('RequireSSL') || 'disabled';
+    my $auth = $domain->prop('Authentication') || 'none';
+
+    if ($httpsPort eq $port){
+        $OUT .= "    SSLEngine on\n";
+    }
+    elsif (($ssl =~ m/^enabled|yes|on|1$/i) || ($auth =~ /^LemonLDAP/)){
+        $OUT .=<<'EOF';
+    RewriteEngine on
+    RewriteCond %{REQUEST_URI} !^/.well-known/acme-challenge/.*
+    RewriteRule ^/(.*|$) https://%{HTTP_HOST}/$1 [L,R]
+
+EOF
+    }
+    elsif ($ssl =~ m#/#){
+        $OUT .= "    RewriteEngine on\n";
+        foreach my $loc (split(/[;,]/, $ssl)){
+            $OUT .= "    # Rewriting $loc to use SSL\n";
+            $loc =~ s#^/##;
+            $OUT .= "    RewriteRule ^/$loc(/.*|\$)  https://%\{HTTP_HOST\}/$loc\$1 \[L,R\]\n";
+        }
+    }
+    else{
+        $OUT .= '';
+    }
+}
+

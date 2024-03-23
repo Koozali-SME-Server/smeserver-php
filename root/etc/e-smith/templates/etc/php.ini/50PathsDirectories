@@ -1,0 +1,8 @@
+include_path                           = {($phpcur->prop(IncludePath)||$php{IncludePath}||$INCLUDE_PATH)}
+doc_root                               =
+user_dir                               =
+extension_dir                          = { return "$EXTENSION_DIR" if ("$EXTENSION_DIR" ne ""  && -d "$EXTENSION_DIR");
+					   return "/usr/lib64/php/modules" if -d "/usr/lib64/php/modules";
+                                           return "/usr/lib/php/modules" if -d "/usr/lib/php/modules";
+                                           return "/usr/lib/php"; }
+enable_dl                              = On

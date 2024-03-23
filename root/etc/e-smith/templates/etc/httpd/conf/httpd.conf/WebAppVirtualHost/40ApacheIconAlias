@@ -1,0 +1,13 @@
+{
+my $alias = $domain->prop('IconAlias') || 'enabled';
+$OUT .= '';
+
+unless ($alias =~ m/disabled|off|no|0/i){
+    $OUT .=<<'EOF';
+
+    # alias for Apache icons
+    Alias /icons/ /var/www/icons/
+
+EOF
+}
+}

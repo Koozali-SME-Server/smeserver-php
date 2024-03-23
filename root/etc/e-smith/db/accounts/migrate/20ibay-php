@@ -1,0 +1,36 @@
+{
+       my %old2new = (
+                    UpMaxFileSize        => "UploadMaxFilesize",
+                    PHPUploadMaxFilesize => "UploadMaxFilesize",
+                    PHPPostMaxSize       => "PostMaxSize",
+                    PHPMaxExecutionTime  => "MaxExecutionTime",
+		    PHPMemoryLimit       => "MemoryLimit",
+		    PHPAllowUrlfOpen     => "AllowUrlFopen",
+                    PHPFileUpload        => "FileUpload",
+                    PHPDisabledFunctions => "DisabledFunctions",
+		    PHPAutoPrependFile   => "AutoPrependFile",
+		    PHPCustomPool	 => "CustomPool",
+		    PHPMaxInputTime      => "MaxInputTime",
+		    MaxExecTime		 => "MaxExecutionTime",
+                );
+
+    foreach my $ibay ($DB->get_all_by_prop(type => 'ibay'))
+    {
+	for my $key (keys %old2new)
+    	{ 
+           next unless (defined $ibay->prop($key));  
+           my $value = $DB->get_prop_and_delete($ibay->key, $key);
+	   next if (defined $ibay->prop($old2new{$key}) );
+           $DB->set_prop($ibay->key, $old2new{$key}, $value);
+    	}
+	for my $key (qw(MemoryLimit UploadMaxFilesize PostMaxSize MaxExecutionTime))
+	{
+	   next unless (defined $ibay->prop($key));
+	   my $value = $DB->get_prop_and_delete($ibay->key, $key) if  ($ibay->prop($key) eq "disabled");
+	   next unless $key eq "MaxExecutionTime";
+	   $DB->set_prop($ibay->key,MaxExecutionTime,0) if ($ibay->prop($key) eq "unlimited");
+	}
+
+    }
+}
+

@@ -1,0 +1,22 @@
+php_admin_value[mail.force_extra_parameters]            = '-f { "php\@$DomainName" }'
+php_admin_flag[display_errors] = off
+php_admin_flag[log_errors] = on
+php_admin_value[memory_limit] = { $MemoryLimit }
+php_admin_value[max_execution_time] = { $MaxExecutionTime }
+php_admin_value[post_max_size] = { $PostMaxSize }
+php_admin_value[upload_max_filesize] = { $UploadMaxFilesize }
+php_admin_value[max_input_time] = { $MaxInputTime }
+{
+if ($OpenBasedir){
+  $OUT .= "php_admin_value[open_basedir] = " . join( ':', (split(/[;,:]/, "$OpenBasedir,/usr/share/php/")) ) . "\n";
+}
+if ($DisableFunctions){
+  $OUT .= "php_admin_value[disable_functions] = " . join( ', ', (split(/[;,:]/, $DisableFunctions)) ) . "\n";
+}
+}
+php_admin_flag[allow_url_fopen] = { $AllowUrlFopen }
+php_admin_flag[file_upload] = { $FileUpload }
+php_admin_flag[session.cookie_httponly] = on
+php_admin_flag[allow_url_include] = off
+php_admin_value[auto_prepend_file] = /usr/share/php/auth_translation.php
+php_admin_value[session.save_handler] = files

@@ -1,0 +1,52 @@
+{
+
+return "# all versions in php-fpm file" unless $PHP_VERSION eq "";
+
+$OUT = "/var/log/php/*/php*fpm.log {
+    missingok
+    notifempty
+    sharedscripts
+    delaycompress
+    su root root
+    create 600 root root
+    postrotate
+      /sbin/e-smith/service php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php55-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php56-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php70-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php71-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php72-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php73-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php74-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php80-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php81-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php82-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php83-php-fpm reload >/dev/null 2>&1 || true
+    endscript
+}
+
+/var/log/php/*/[!php]*.log {
+    missingok
+    notifempty
+    sharedscripts
+    delaycompress
+    su www www
+    create 600 www www
+    postrotate
+      /sbin/e-smith/service php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php55-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php56-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php70-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php71-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php72-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php73-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php74-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php80-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php81-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php82-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php83-php-fpm reload >/dev/null 2>&1 || true
+    endscript
+}
+";
+
+}

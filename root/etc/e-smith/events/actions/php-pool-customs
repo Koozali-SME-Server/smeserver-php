@@ -1,0 +1,28 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use File::Path qw(make_path remove_tree);
+use esmith::ConfigDB;
+use esmith::util;
+
+my $pool_db = esmith::ConfigDB->open_ro('php') || esmith::ConfigDB->create('php');
+
+foreach my $pool ($pool_db->get_all_by_prop(type => 'pool')){
+  my $status  = $pool->prop('status')  || 'enabled';
+  next unless ($status eq 'enabled');
+  my $key                 = $pool->key;
+  my @dirs = ( "/var/log/php/$key",
+               "/var/lib/php/$key/session",
+               "/var/lib/php/$key/wsdlcache",
+               "/var/lib/php/$key/opcache",
+               "/var/lib/php/$key/tmp" );
+  for (@dirs){
+      esmith::util::chownFile("root", "www", $_) if -e $_;
+      make_path( $_, {
+              owner => 'root',
+              group => 'www'
+      }) unless -e $_;
+  }
+  chmod 0770, @dirs;
+}

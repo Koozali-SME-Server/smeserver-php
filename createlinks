@@ -1,0 +1,140 @@
+#!/usr/bin/perl -w
+
+use esmith::Build::CreateLinks qw(:all);
+my $ver; my $service; my $file; my $event;
+
+#old e-smith-php
+foreach $file (qw(/etc/php.ini 
+/opt/remi/php55/root/etc/php.ini 
+/opt/remi/php56/root/etc/php.ini 
+/etc/opt/remi/php70/php.ini 
+/etc/opt/remi/php71/php.ini 
+/etc/opt/remi/php72/php.ini 
+/etc/opt/remi/php73/php.ini 
+/etc/opt/remi/php74/php.ini
+/etc/opt/remi/php80/php.ini
+/etc/opt/remi/php81/php.ini
+/etc/opt/remi/php82/php.ini
+/etc/opt/remi/php83/php.ini
+)){
+  templates2events($file, qw(
+        console-save
+        bootstrap-console-save
+        webapps-update
+        smeserver-php-update
+    ));
+}
+
+templates2events("/etc/rsyslog.conf","smeserver-php-update");
+safe_symlink("restart", "root/etc/e-smith/events/smeserver-php-update/services2adjust/rsyslog");
+
+#new php-fpm
+foreach  $service (qw(php-fpm)){
+  foreach $event (qw(webapps-update ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers )){
+    safe_symlink("reload-or-restart", "root/etc/e-smith/events/$event/services2adjust/$service");
+  }
+  $event="smeserver-php-update";
+  safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/$service");
+}
+
+for $event (qw(smeserver-php-update webapps-update)){
+  $service="httpd-e-smith";
+  #when moved to systemd could become a reload-or-restart
+  safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/$service");
+  $file="/etc/httpd/conf/httpd.conf";
+  templates2events($file, $event);
+}
+
+foreach $ver (qw( 55 56 70 71 72 73 74 80 81 82 83)){
+foreach $service ( "php$ver-php-fpm" ){
+  foreach $event (qw(webapps-update ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers )){
+    safe_symlink("reload-or-restart", "root/etc/e-smith/events/$event/services2adjust/$service");
+    }
+  $event="smeserver-php-update";
+  safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/$service");
+  } 
+}
+
+#general php-fpm
+foreach $file (qw( /etc/php-fpm.conf
+                     /etc/php-fpm.d/www.conf
+                     /etc/php-fpm.d/ibays.conf
+                     /etc/php-fpm.d/custom.conf)){
+  templates2events($file, qw(webapps-update bootstrap-console-save ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers smeserver-php-update));
+  safe_symlink('/etc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates$file/template-begin");
+  }
+  safe_symlink('/etc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates/etc/php.ini/template-begin");
+
+foreach $file (qw( /etc/sysconfig/php-fpm
+                     /etc/logrotate.d/php-fpm 
+               /etc/logrotate.d/php55-php-fpm
+               /etc/logrotate.d/php56-php-fpm
+               /etc/logrotate.d/php70-php-fpm
+               /etc/logrotate.d/php70-php-fpm
+               /etc/logrotate.d/php71-php-fpm
+               /etc/logrotate.d/php72-php-fpm
+               /etc/logrotate.d/php73-php-fpm
+               /etc/logrotate.d/php74-php-fpm
+               /etc/logrotate.d/php80-php-fpm
+               /etc/logrotate.d/php81-php-fpm
+               /etc/logrotate.d/php82-php-fpm
+               /etc/logrotate.d/php83-php-fpm
+               )){
+  templates2events($file, qw(webapps-update bootstrap-console-save smeserver-php-update));
+  }
+
+#php5*
+foreach $ver (qw( 55 56 )){
+foreach $file (  "/opt/remi/php$ver/root/etc/php-fpm.conf",
+                     "/opt/remi/php$ver/root/etc/php-fpm.d/www.conf",
+                     "/opt/remi/php$ver/root/etc/php-fpm.d/ibays.conf",
+                     "/opt/remi/php$ver/root/etc/php-fpm.d/custom.conf" ){
+  templates2events($file, qw(webapps-update bootstrap-console-save ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers smeserver-php-update));
+  #safe_symlink('/etc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates$file/template-begin");
+  }
+foreach $file ( "/opt/remi/php$ver/root/etc/sysconfig/php-fpm" ){
+  templates2events($file, qw(webapps-update bootstrap-console-save));
+  }
+
+}
+
+#php7*
+foreach $ver (qw( 70 71 72 73 74 80 81 82 83)){
+foreach $file ( "/etc/opt/remi/php$ver/php-fpm.conf",
+                   "/etc/opt/remi/php$ver/php-fpm.d/www.conf",
+                   "/etc/opt/remi/php$ver/php-fpm.d/ibays.conf",
+                   "/etc/opt/remi/php$ver/php-fpm.d/custom.conf" ){
+  templates2events($file, qw(webapps-update bootstrap-console-save ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers smeserver-php-update));
+  #safe_symlink('/etc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates$file/template-begin");
+  }
+foreach $file ( "/etc/opt/remi/php$ver/sysconfig/php-fpm" ){
+  templates2events($file, qw(webapps-update bootstrap-console-save smeserver-php-update));
+  }
+}
+
+safe_symlink('/etc/e-smith/templates-default/template-begin-shell', 'root/etc/e-smith/templates/etc/cron.daily/tmpwatch-php-fpm/template-begin');
+
+foreach my $event (qw( ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers smeserver-php-update  post-install post-upgrade)) {
+  event_link( "php-pool-dirs", $event, "90");
+}
+
+foreach my $event (qw( ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers smeserver-php-update console-save post-upgrade post-install )) {
+  event_link( "php-pool-customs", $event, "90");
+}
+
+
+# systemd units
+#foreach $ver (qw( 55 56 70 71 72 73 74 )){
+#$service = "php$ver-php-fpm.service";
+#safe_symlink("../$service", "root/usr/lib/systemd/system/multi-user.target.wants/$service");
+#safe_symlink("../$service", "root/usr/lib/systemd/system/sme-server.target.wants/$service");
+#}
+#$service = "php-fpm.service";
+#safe_symlink("../$service", "root/usr/lib/systemd/system/multi-user.target.wants/$service");
+#safe_symlink("../$service", "root/usr/lib/systemd/system/sme-server.target.wants/$service");
+
+#webapps
+$event = 'webapps-update';
+templates2events("/etc/my.cnf", $event);
+
+safe_symlink("start", "root/etc/e-smith/events/$event/services2adjust/mysql.init");

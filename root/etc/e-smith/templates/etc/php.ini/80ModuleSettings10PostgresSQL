@@ -1,0 +1,8 @@
+[PostgresSQL]
+pgsql.allow_persistent                 = On
+pgsql.auto_reset_persistent            = Off
+pgsql.max_persistent                   = -1
+pgsql.max_links                        = -1
+pgsql.ignore_notice                    = Off
+pgsql.log_notice                       = Off
+

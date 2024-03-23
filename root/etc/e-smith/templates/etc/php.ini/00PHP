@@ -1,0 +1,7 @@
+[PHP]{
+use esmith::ConfigDB;
+my $c = esmith::ConfigDB->open_ro || die "Couldn't open the configuration database\n";
+my $srv = ( $PHP_VERSION ne '') ? 'php' . $PHP_VERSION : 'php';
+our $phpcur = $c->get( $srv );
+$OUT .= '';
+}

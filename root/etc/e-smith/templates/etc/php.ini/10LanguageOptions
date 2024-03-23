@@ -1,0 +1,41 @@
+{#;;;;;;;;;;;;;;;;;;
+# Language Options ;
+#;;;;;;;;;;;;;;;;;;;}
+engine                                 = On
+short_open_tag                         = {
+    my $short = $phpcur->prop(ShortOpenTag) || $php{ShortOpenTag} || "On";
+    $OUT .= "$short";
+}
+asp_tags                               = Off
+precision                              = 14
+output_buffering                       = 4096
+output_handler                         =
+zlib.output_compression		       = Off
+implicit_flush                         = Off
+unserialize_callback_func              =
+serialize_precision		       = 17
+disable_functions                      =
+disable_classes                        =
+safe_mode                              = Off
+safe_mode_exec_dir                     =
+safe_mode_allowed_env_vars             = PHP_
+safe_mode_protected_env_vars           = LD_LIBRARY_PATH
+disable_functions                      =
+highlight.string                       = #DD0000
+highlight.comment                      = #FF8000
+highlight.keyword                      = #007700
+highlight.bg                           = #FFFFFF
+highlight.default                      = #0000BB
+highlight.html                         = #000000
+zend.enable_gc                         = On
+{
+return "" if $PHP_VERSION eq "";
+if ( $PHP_VERSION >= 70)
+  {
+$OUT .="zend.assertions                         = -1\n";	
+  }
+if ( $PHP_VERSION >= 74)
+  {
+$OUT .="zend.exception_ignore_args              = On\n";
+  }
+}

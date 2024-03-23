@@ -1,0 +1,4 @@
+[mysqlnd]
+mysqlnd.collect_statistics             = On
+mysqlnd.collect_memory_statistics      = Off
+

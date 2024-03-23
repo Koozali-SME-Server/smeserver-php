@@ -1,0 +1,14 @@
+{
+use esmith::AccountsDB;
+my $a = esmith::AccountsDB->open_ro || die "Couldn't open the accounts database\n";
+foreach my $ibay ($a->get_all_by_prop(type => 'ibay')){
+  next unless (($ibay->prop('CgiBin') || 'disabled') =~ m/^enabled|on|yes|1$/);
+  my $key = $ibay->key;
+  $OUT .=_EOF;
+/usr/sbin/tmpwatch -umc --nodirs -q 7d /var/lib/php/$key/tmp
+/usr/sbin/tmpwatch -umc --nodirs -q 7d /var/lib/php/$key/opcache
+/usr/sbin/tmpwatch -umc --nodirs -q 7d /var/lib/php/$key/wsdlcache
+/usr/sbin/tmpwatch -umc --nodirs -q 7d /var/lib/php/$key/opcache
+_EOF
+}
+}

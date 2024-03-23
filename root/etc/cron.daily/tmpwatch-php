@@ -1,0 +1,2 @@
+[ -d /var/lib/php ] && /usr/sbin/tmpwatch --nodirs -f 8 /var/lib/php
+[ -d /var/cache/e-smith/files/ibays ] && /usr/sbin/tmpwatch --nodirs -f 8 /var/cache/e-smith/files/ibays

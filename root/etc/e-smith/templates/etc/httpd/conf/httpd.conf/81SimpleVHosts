@@ -1,0 +1,35 @@
+{
+    $OUT = '';
+
+    use esmith::DomainsDB;
+
+    my $db = esmith::DomainsDB->open_ro;
+    unless ($db){   
+        warn "Couldn't open domains DB in VirtualHosts template fragment";
+        return;
+    }
+
+    my @vhosts = $db->get_all_by_prop('type' => 'vhost');
+    foreach my $vhost (@vhosts) {
+        my $templatePath = $vhost->prop('TemplatePath') || 'WebAppVirtualHost';
+        foreach my $port ($httpPort, $httpsPort){
+            my %virtualHost = (
+                ipAddress => '0.0.0.0',
+                port => $port,
+                localAccess => $localAccess,
+                externalSSLAccess => $externalSSLAccess,
+                domain => $vhost,
+                httpPort => $httpPort,
+                httpsPort => $httpsPort
+            );
+
+            $OUT .= esmith::templates::processTemplate (
+            {
+                MORE_DATA => \%virtualHost,
+                TEMPLATE_PATH =>
+                    "/etc/httpd/conf/httpd.conf/$templatePath",
+                OUTPUT_TYPE => 'string',
+            });
+        }
+    }
+}

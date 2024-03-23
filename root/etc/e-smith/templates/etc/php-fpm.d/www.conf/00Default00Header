@@ -1,0 +1,22 @@
+{
+use esmith::ConfigDB;
+my $c = esmith::ConfigDB->open_ro || die "Couldn't opeen the configuration database\n";
+my $srv = ( $PHP_VERSION ne '') ? 'php' . $PHP_VERSION . '-php-fpm' : 'php-fpm';
+my $php = $c->get( $srv );
+if ($php){
+  $MemoryLimit       = $php->prop('MemoryLimit')       || '128M';
+  $MaxExecutionTime  = $php->prop('MaxExecutionTime')  || '30';
+  $MaxInputTime      = $php->prop('MaxInputTime')      || '60';
+  $AllowUrlFopen     = $php->prop('AllowUrlFopen')     || 'off';
+  $MaxChildren       = $php->prop('MaxChildren')       || '15';
+  $PostMaxSize       = $php->prop('PostMaxSize')       || '10M';
+  $UploadMaxFilesize = $php->prop('UploadMaxFilesize') || '10M';
+  $OpenBasedir       = $php->prop('OpenBasedir')       || undef;
+  $DisableFunctions  = $php->prop('DisableFunctions')  || 'system,show_source,' .
+                                                          'symlink,exec,dl,shell_exec,' .
+                                                          'passthru,phpinfo,' .
+                                                          'escapeshellarg,escapeshellcmd';
+}
+return "";
+}
+[php{ $PHP_VERSION }]

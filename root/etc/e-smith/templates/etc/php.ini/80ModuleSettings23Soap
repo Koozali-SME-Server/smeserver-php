@@ -1,0 +1,6 @@
+[soap]
+soap.wsdl_cache_enabled                = On
+soap.wsdl_cache_dir                    = {"/var/lib/php/php$PHP_VERSION/wsdlcache"}
+soap.wsdl_cache_ttl                    = 86400
+soap.wsdl_cache_limit                  = 5
+

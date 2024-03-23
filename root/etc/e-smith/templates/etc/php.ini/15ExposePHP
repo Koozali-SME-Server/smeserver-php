@@ -1,0 +1,5 @@
+; Default expose_php to Off for security reasons
+expose_php                             = {
+    my $ep = $phpcur->prop(ExposePHP) || $php{ExposePHP} || "Off";
+    $OUT .= "$ep";
+}

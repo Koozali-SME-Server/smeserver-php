@@ -1,0 +1,84 @@
+{
+
+use esmith::AccountsDB;
+use esmith::php;
+my $a = esmith::AccountsDB->open_ro || die "Couldn't open the accounts database";
+
+foreach my $ibay ($a->get_all_by_prop(type => 'ibay')){
+  my $version		  = PhpFpmVersionToUse($ibay); 
+  my $dynamic             = $ibay->prop('CgiBin') || 'disabled';
+  my $custom              = $ibay->prop('CustomPool') || undef;
+  next unless ($dynamic eq 'enabled' && $version eq $PHP_VERSION && !$custom);
+  my $key                 = $ibay->key;
+  my $name                = lc $key;
+  my $pool_name           = 'php' . $version . '-' . $name;
+  my $memory_limit        = $ibay->prop('MemoryLimit')       || $defaultPHPproperties{'MemoryLimit'};
+  my $max_execution_time  = (defined $ibay->prop('MaxExecutionTime') ) ? $ibay->prop('MaxExecutionTime') : $defaultPHPproperties{'MaxExecutionTime'};
+  my $max_input_time      = (defined $ibay->prop('MaxInputTime'))? $ibay->prop('MaxInputTime') : $defaultPHPproperties{'MaxInputTime'};
+  my $allow_url_fopen     = $ibay->prop('AllowUrlFopen')     || $defaultPHPproperties{'AllowUrlFopen'};
+  my $post_max_size       = $ibay->prop('PostMaxSize')       || $defaultPHPproperties{'PostMaxSize'};
+  my $upload_max_filesize = $ibay->prop('UploadMaxFilesize') || $defaultPHPproperties{'UploadMaxFilesize'};
+  my $file_upload         = $ibay->prop('FileUpload')        || $defaultPHPproperties{'FileUpload'};
+  my $display_errors	  = $ibay->prop('DisplayErrors') || 'off'; #we do not set this one at php level to avoid to have a whole server displaying errors and security issues
+  my $error_reporting	  = $ibay->prop('ErrorReporting') || 'E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT'; #same reason, we hardcoded the default
+  my $open_basedir        = $ibay->prop('PHPBaseDir')           || '/home/e-smith/files/ibays/' . $key . '/' . ':/var/lib/php/' . $key . '/';
+
+  my $disabled_functions  = (defined $ibay->prop('DisabledFunctions')) ? $ibay->prop('DisabledFunctions') :  $defaultPHPproperties{'DisabledFunctions'};
+  my $autoprepend         = $ibay->prop('AutoPrependFile')  || $defaultPHPproperties{'AutoPrependFile'};
+  my $MailForceSender	  = $ibay->prop('MailForceSender')  || "$name\@$DomainName"; # TODO => check ibay associated domains.
+  my $limitExtensions     = ( ($ibay->prop('AllowPHTML') || $defaultPHPproperties{'AllowPHTML'} ) eq 'enabled' ) ? "security.limit_extensions= .php .htm .html .phar .phtml .xml " : "";
+
+  # Format vars 
+  my $autoprep            = ( $autoprepend eq "disabled") ? "" : "/usr/share/php/auth_translation.php";
+  my $autoprepath         = ( -d  "/opt/remi/php$version/root/usr/share/pear/" && -d "/opt/remi/php$version/root/usr/share/php/" ) ? ":/usr/share/php/:/usr/share/pear/:/opt/remi/php$version/root/usr/share/pear/:/opt/remi/php$version/root/usr/share/php/" : ":/usr/share/php/:/usr/share/pear/";
+  $file_upload        = ($file_upload =~ m/^1|yes|on|enabled$/) ?     'on' : 'off';
+  $allow_url_fopen    = ($allow_url_fopen =~ m/^1|yes|on|enabled$/) ? 'on' : 'off';
+  $disabled_functions = join(', ', split /[,;:]/, $disabled_functions);
+  $display_errors     = ($display_errors  =~ m/^1|yes|on|enabled$/) ? 'on' : 'off';
+  $error_reporting    = ($error_reporting eq 'E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT') ? '; default error_reporting' : "php_value[error_reporting] = $error_reporting";
+  $open_basedir       = join(':',  split(/[,;:]/, $open_basedir .  $autoprepath));
+
+  $OUT .=<<"_EOF" if ($version eq $PHP_VERSION);
+
+[$pool_name]
+user = www
+group = www
+listen.owner = root
+listen.group = www
+listen.mode = 0660
+listen = /var/run/php-fpm/$pool_name.sock
+pm = dynamic
+pm.max_children = 15
+pm.start_servers = 3
+pm.min_spare_servers = 3
+pm.max_spare_servers = 4
+pm.max_requests = 1000
+$limitExtensions
+slowlog = /var/log/php/$key/slow.log
+php_admin_value[session.save_path] = /var/lib/php/$key/session
+php_admin_value[opcache.file_cache]  = /var/lib/php/$key/opcache
+php_admin_value[upload_tmp_dir] = /var/lib/php/$key/tmp
+php_admin_value[sys_temp_dir] = /var/lib/php/$key/tmp
+php_admin_value[mail.force_extra_parameters]            = '-f $MailForceSender'
+php_flag[display_errors] = $display_errors
+$error_reporting
+php_admin_flag[log_errors] = on
+php_admin_value[error_log] = /var/log/php/$key/error.log
+php_admin_value[memory_limit] = $memory_limit
+php_admin_value[max_execution_time] = $max_execution_time
+php_admin_value[post_max_size] = $post_max_size
+php_admin_value[upload_max_filesize] = $upload_max_filesize
+php_admin_value[max_input_time] = $max_input_time
+php_admin_value[disable_functions] = $disabled_functions
+php_admin_flag[allow_url_fopen] = $allow_url_fopen
+php_admin_flag[file_upload] = $file_upload
+php_admin_flag[session.cookie_httponly] = on
+php_admin_flag[allow_url_include] = off
+php_value[session.save_handler] = files
+php_admin_value[auto_prepend_file] = $autoprep
+php_admin_value[open_basedir] = $open_basedir
+
+_EOF
+}
+
+}

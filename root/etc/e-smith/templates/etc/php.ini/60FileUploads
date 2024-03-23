@@ -1,0 +1,10 @@
+file_uploads                           = On
+upload_max_filesize                    = {
+    my $mf = $phpcur->prop(UploadMaxFilesize) || $php{UploadMaxFilesize} || "10M";
+    $OUT .= "$mf";
+}
+upload_tmp_dir                         = {"/var/lib/php/php$PHP_VERSION/tmp"}
+max_file_uploads                       = {
+    my $mfu = $phpcur->prop(MaxFileUpload) || $php{MaxFileUpload} || "20";
+    $OUT .= "$mfu";
+}

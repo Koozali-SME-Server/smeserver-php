@@ -1,0 +1,15 @@
+{
+    return "" unless (exists $php{status} and $php{status} eq "enabled");
+
+    $OUT =<<HERE;
+
+<IfModule mod_php5.c>
+    AddIcon /icons/php.gif .phps .php .phtml
+</IfModule>
+
+<IfModule mod_php7.c>
+    AddIcon /icons/php.gif .phps .php .phtml
+</IfModule>
+
+HERE
+}

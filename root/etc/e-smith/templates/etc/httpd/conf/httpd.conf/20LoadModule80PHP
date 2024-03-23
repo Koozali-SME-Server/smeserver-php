@@ -1,0 +1,17 @@
+{
+    $phpModule = $php{phpModule} || 'disabled';
+    # default we return with nothing activated
+    return "#PHP mod is disabled by default, please use PHP-fpm" unless (exists $php{status} and $php{status} eq "enabled" and $phpModule eq "enabled");
+
+    use esmith::php;
+    our $PHPVersion = PHPdefault(1);
+    my $phpMR = substr($PHPVersion,0,1) || '';
+    #php7 software collection libphp72.so
+    return "LoadModule php$\{phpMR\}_module modules/libphp$PHPVersion.so\n" if (-r "/usr/lib64/httpd/modules/libphp$PHPVersion.so");
+    #php5 software collection libphp56-php5.so
+    return "LoadModule php$\{phpMR\}_module modules/libphp$PHPVersion-php$phpMR.so\n" if (-r "/usr/lib64/httpd/modules/libphp$PHPVersion-php$phpMR.so");
+    # else we default to base php
+    return "LoadModule php5_module modules/libphp5.so" if ( -r "/usr/lib/httpd/modules/libphp5.so" ||
+                                                            -r "/usr/lib64/httpd/modules/libphp5.so" );
+    return "#no PHP module found";
+}

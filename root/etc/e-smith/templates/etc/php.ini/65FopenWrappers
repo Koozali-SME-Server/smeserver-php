@@ -1,0 +1,3 @@
+allow_url_fopen                        = {($phpcur->prop(AllowUrlFopen) || $php{AllowUrlFopen} || 'Off')}
+allow_url_include                      = Off
+default_socket_timeout                 = 60

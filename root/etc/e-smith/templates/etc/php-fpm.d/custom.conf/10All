@@ -1,0 +1,87 @@
+{
+
+use esmith::ConfigDB;
+
+my $pool_db = esmith::ConfigDB->open_ro('php') || esmith::ConfigDB->create('php');
+
+foreach my $pool ($pool_db->get_all_by_prop(type => 'pool')){
+  my $version = $pool->prop('Version') || '';
+  my $status  = $pool->prop('status')  || 'enabled';
+  next unless ($version eq $PHP_VERSION && $status eq 'enabled');
+
+  my $key                 = $pool->key;
+  my $pool_name           = 'php' . $version . '-' . $key;
+  my $memory_limit        = $pool->prop('MemoryLimit')       || '128M';
+  my $max_execution_time  = $pool->prop('MaxExecutionTime')  || '30';
+  my $max_input_time      = $pool->prop('MaxInputTime')      || '60';
+  my $allow_url_fopen     = $pool->prop('AllowUrlFopen')     || 'disabled';
+  my $post_max_size       = $pool->prop('PostMaxSize')       || '10M';
+  my $upload_max_filesize = $pool->prop('UploadMaxFilesize') || '10M';
+  my $file_upload         = $pool->prop('FileUpload')        || 'enabled';
+  my $open_basedir        = $pool->prop('BaseDir')           || undef;
+  my $disabled_functions  = $pool->prop('DisabledFunctions') || 'system,show_source,' .
+                                                                'symlink,exec,dl,shell_exec,' .
+                                                                'passthru,phpinfo,' .
+                                                                'escapeshellarg,escapeshellcmd';
+  my $user                = $pool->prop('User')              || 'www';
+  my $group               = $pool->prop('Group')             || $user;
+  my $max_children        = $pool->prop('MaxChildren')       || '15';
+  my $display_errors      = $pool->prop('DisplayErrors')     || 'disabled';
+  my $log_errors          = $pool->prop('LogErrors')         || 'disabled';
+  my $autoprepend         = $pool->prop('AutoPrependFile')  || 'enabled';
+  my $MailForceSender     = $pool->prop('MailForceSender')  || "php\@$DomainName";
+
+  # Format vars
+  my $autoprep            = ( $autoprepend eq "disabled") ? "" : "/usr/share/php/auth_translation.php";
+  my $autoprepath         = ( $autoprepend eq "disabled") ? "" : ",/usr/share/php/";
+  $file_upload        = ($file_upload =~ m/^1|yes|on|enabled$/) ?     'on' : 'off';
+  $allow_url_fopen    = ($allow_url_fopen =~ m/^1|yes|on|enabled$/) ? 'on' : 'off';
+  $display_errors     = ($display_errors =~ m/^1|yes|on|enabled$/) ?  'on' : 'off';
+  $log_errors         = ($log_errors =~ m/^1|yes|on|enabled$/) ?      'on' : 'off';
+  $disabled_functions = join(', ', split /[,;:]/, $disabled_functions);
+  $open_basedir       = (defined $open_basedir) ? 'php_admin_value[open_basedir] = ' . join(':', split(/[,;:]/, $open_basedir . $autoprepath)) :
+                                                                                   '; open_basedir is not set';
+
+  $OUT .=<<"_EOF";
+
+[$pool_name]
+user = $user
+group = $group
+listen.owner = root
+listen.group = www
+listen.mode = 0660
+listen = /var/run/php-fpm/$pool_name.sock
+pm = dynamic
+pm.max_children = $max_children
+pm.start_servers = 3
+pm.min_spare_servers = 3
+pm.max_spare_servers = 4
+pm.max_requests = 1000
+slowlog = /var/log/php/$key/slow.log
+php_admin_value[session.save_path] = /var/lib/php/$key/session
+php_admin_value[opcache.file_cache]  = /var/lib/php/$key/opcache
+php_admin_value[upload_tmp_dir] = /var/lib/php/$key/tmp
+php_admin_value[sys_temp_dir] = /var/lib/php/$key/tmp
+php_admin_value[mail.force_extra_parameters]            = '-f $MailForceSender'
+php_admin_flag[display_errors] = $display_errors
+php_admin_flag[log_errors] = $log_errors
+php_admin_value[error_log] = /var/log/php/$key/error.log
+php_admin_value[memory_limit] = $memory_limit
+php_admin_value[max_execution_time] = $max_execution_time
+php_admin_value[post_max_size] = $post_max_size
+php_admin_value[upload_max_filesize] = $upload_max_filesize
+php_admin_value[max_input_time] = $max_input_time
+php_admin_value[disable_functions] = $disabled_functions
+php_admin_flag[allow_url_fopen] = $allow_url_fopen
+php_admin_flag[file_upload] = $file_upload
+php_admin_flag[session.cookie_httponly] = on
+php_admin_flag[allow_url_include] = off
+php_admin_value[auto_prepend_file] = $autoprep
+php_value[session.save_handler] = files
+$open_basedir
+
+_EOF
+
+}
+
+}

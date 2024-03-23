@@ -1,0 +1,11 @@
+{
+$OUT .=<<_EOF;
+php_admin_value[session.save_path] = /var/lib/php/php$PHP_VERSION/session
+php_admin_value[soap.wsdl_cache_dir]  = /var/lib/php/php$PHP_VERSION/wsdlcache
+php_admin_value[opcache.file_cache]  = /var/lib/php/php$PHP_VERSION/opcache
+php_admin_value[upload_tmp_dir] = /var/lib/php/php$PHP_VERSION/tmp
+php_admin_value[sys_temp_dir] = /var/lib/php/php$PHP_VERSION/tmp
+_EOF
+}
+php_admin_value[error_log] = /var/log/php/php{ $PHP_VERSION }/error.log
+slowlog = /var/log/php/php{ $PHP_VERSION }/slow.log
