@@ -1,5 +1,5 @@
-%define version 3.0.0
-%define release 50
+%define version 11.0.0
+%define release 1
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -378,6 +378,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Sat Mar 23 2024 Brian Read <brianr@koozali.org>11.0.0-1.sme
+- Update Release and Version to base version and 1st release for SME11 [SME: 12518]
+
 * Sat Mar 23 2024 cvs2git.sh aka Brian Read <brianr@koozali.org> 3.0.0-49.sme
 - Roll up patches and move to git repo [SME: 12338]
 
