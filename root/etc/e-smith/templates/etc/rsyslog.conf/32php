@@ -4,14 +4,6 @@
 & stop
 :programname, startswith, "php-fpm"     /var/log/php/php/php-fpm.log
 & stop
-:programname, startswith, "php55-fpm"   /var/log/php/php55/php55-fpm.log
-& stop
-:programname, startswith, "php56-fpm"   /var/log/php/php56/php56-fpm.log
-& stop
-:programname, startswith, "php70-fpm"   /var/log/php/php70/php70-fpm.log
-& stop
-:programname, startswith, "php71-fpm"   /var/log/php/php71/php71-fpm.log
-& stop
 :programname, startswith, "php72-fpm"   /var/log/php/php72/php72-fpm.log
 & stop
 :programname, startswith, "php73-fpm"   /var/log/php/php73/php73-fpm.log

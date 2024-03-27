@@ -4,8 +4,8 @@ use strict;
 use warnings;
 use esmith::ConfigDB;
 
-our $PHPDEFAULT = 74;
-our $BASEPHP = 54;
+our $PHPDEFAULT = 82;
+our $BASEPHP = 81;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw( listPHPVersionFPM listPHPVersionShort listPHPVersionHash listPHPVersionHashShort  PHPdefault PHPbase VersionToUse  PhpFpmVersionToUse  $defaultdisabledfunc %defaultPHPproperties);
@@ -52,10 +52,6 @@ param = (enabled, disabled, all) , if empty default to all
 this will return you an array of php-fpm versions available php version
 print "'$_'\n" for listPHPVersionFPM('all');
 'php-fpm'
-'php55-php-fpm'
-'php56-php-fpm'
-'php70-php-fpm'
-'php71-php-fpm'
 'php72-php-fpm'
 'php73-php-fpm'
 'php74-php-fpm'
@@ -89,11 +85,6 @@ param2 = will use "" as output for base php
 
 this will return you an array of numerical available php version
 print "'$_'\n" for listPHPVersionShort('all');
-'54'
-'55'
-'56'
-'70'
-'71'
 '72'
 '73'
 '74'
@@ -121,11 +112,6 @@ param2 = if defined will use "" as key for php-fpm
 this will return you a hash order by version 
 my %list= listPHPVersionHash();
 print "$_ => $list{$_}\n" for (sort keys %list);
-54 => php-fpm
-55 => php55-php-fpm
-56 => php56-php-fpm
-70 => php70-php-fpm
-71 => php71-php-fpm
 72 => php72-php-fpm
 73 => php73-php-fpm
 74 => php74-php-fpm
@@ -155,11 +141,6 @@ param2 = if defined will use "" as key for php-fpm
 this will return you a hash order by version 
 my %list= listPHPVersionHashShort();
 print "$_ => $list{$_}\n" for (sort keys %list);
-54 => php
-55 => php55
-56 => php56
-70 => php70
-71 => php71
 72 => php72
 73 => php73
 74 => php74

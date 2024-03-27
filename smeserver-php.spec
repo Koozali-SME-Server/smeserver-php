@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 3
+%define release 4
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -281,6 +281,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Tue Mar 26 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-4.sme
+- remove last references to php <7.2 [SME: 12550]
+
 * Sat Mar 23 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-3.sme
 - drop support for php < 7.2 [SME: 12521]
 

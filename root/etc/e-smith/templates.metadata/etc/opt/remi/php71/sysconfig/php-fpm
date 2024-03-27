@@ -1,2 +1,0 @@
-TEMPLATE_PATH="/etc/sysconfig/php-fpm"
-MORE_DATA={ PHP_VERSION => 71 }
