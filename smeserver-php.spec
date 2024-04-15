@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 5
+%define release 6
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -281,6 +281,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Mon Apr 15 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-6.sme
+- remove tar.xz from git
+
 * Thu Apr 04 2024 Brian Read <brianr@koozali.org> 11.0.0-5.sme
 - Set license file to GPL2.0  [SME: 12577]
 
