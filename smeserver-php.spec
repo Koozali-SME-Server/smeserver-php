@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 6
+%define release 7
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -238,9 +238,9 @@ done
 for phpver in  "72" "73" "74" "80" "81" "82" "83"; do
 #cp ph70 metada
 mkdir -p root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver/
-cp -a  root/etc/e-smith/templates.metadata/etc/opt/remi/php70/* root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver/
+cp -a  root/etc/e-smith/templates.metadata/etc/opt/remi/php72/* root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver/
 #sed inplace
-find root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver  -type f -print0 | xargs -0 sed -i 's/70/'$phpver'/g'
+find root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver  -type f -print0 | xargs -0 sed -i 's/72/'$phpver'/g'
 done
 
 # then patch the following files
@@ -281,7 +281,7 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
-* Mon Apr 15 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-6.sme
+* Mon Apr 15 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-7.sme
 - remove tar.xz from git
 
 * Thu Apr 04 2024 Brian Read <brianr@koozali.org> 11.0.0-5.sme
