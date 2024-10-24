@@ -37,6 +37,17 @@ foreach my $ibay ($a->get_all_by_prop(type => 'ibay')){
   $display_errors     = ($display_errors  =~ m/^1|yes|on|enabled$/) ? 'on' : 'off';
   $error_reporting    = ($error_reporting eq 'E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT') ? '; default error_reporting' : "php_value[error_reporting] = $error_reporting";
   $open_basedir       = join(':',  split(/[,;:]/, $open_basedir .  $autoprepath));
+  my $max_input_vars      = (defined $ibay->prop('MaxInputVars'))? $ibay->prop('MaxInputVars') : $defaultPHPproperties{'MaxInputVars'} || '1000';
+  my $short_open_tag      = (defined $ibay->prop('ShortOpenTag'))? $ibay->prop('ShortOpenTag') : $defaultPHPproperties{'ShortOpenTag'} || 'On';
+  my $sessionProb         = (defined $ibay->prop('SessionProbability'))? $ibay->prop('SessionProbability') : $defaultPHPproperties{'SessionProbability'} || '1';
+  my $max_children        = (defined $ibay->prop('PHPmaxChildren'))? $ibay->prop('PHPmaxChildren') : $defaultPHPproperties{'PHPmaxChildren'} || 20;
+  my $min_spare_servers   = (defined $ibay->prop('PHPminServers'))? $ibay->prop('PHPminServers') : $defaultPHPproperties{'PHPminServers'} || 4;
+  my $start_servers       = (defined $ibay->prop('PHPstartServers'))? $ibay->prop('PHPstartServers') : $defaultPHPproperties{'PHPstartServers'} || 6;
+  my $max_spare_servers   = (defined $ibay->prop('PHPmaxServers'))? $ibay->prop('PHPmaxServers') : $defaultPHPproperties{'PHPmaxServers'} || 8;
+  my $max_requests        = (defined $ibay->prop('PHPmaxRequests'))? $ibay->prop('PHPmaxRequests') : $defaultPHPproperties{'PHPmaxRequests'} || 1000;
+  $min_spare_servers      = ( $min_spare_servers > $max_spare_servers ) ? sprintf("%.0f", $max_spare_servers/2) : $min_spare_servers;
+  $start_servers          = ( $start_servers > $max_spare_servers ) ? sprintf("%.0f", $max_spare_servers/2 +  $min_spare_servers/2  ) : $start_servers;
+
 
   $OUT .=<<"_EOF" if ($version eq $PHP_VERSION);
 
@@ -48,11 +59,11 @@ listen.group = www
 listen.mode = 0660
 listen = /var/run/php-fpm/$pool_name.sock
 pm = dynamic
-pm.max_children = 15
-pm.start_servers = 3
-pm.min_spare_servers = 3
-pm.max_spare_servers = 4
-pm.max_requests = 1000
+pm.max_children = $max_children
+pm.start_servers = $start_servers
+pm.min_spare_servers = $min_spare_servers
+pm.max_spare_servers = $max_spare_servers
+pm.max_requests = $max_requests
 $limitExtensions
 slowlog = /var/log/php/$key/slow.log
 php_admin_value[session.save_path] = /var/lib/php/$key/session
@@ -77,6 +88,9 @@ php_admin_flag[allow_url_include] = off
 php_value[session.save_handler] = files
 php_admin_value[auto_prepend_file] = $autoprep
 php_admin_value[open_basedir] = $open_basedir
+php_admin_value[max_input_vars] = $max_input_vars
+php_admin_value[short_open_tag] = $short_open_tag
+php_admin_value[session.gc_probability] = $sessionProb
 
 _EOF
 }

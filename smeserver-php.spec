@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 8
+%define release 9
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -189,7 +189,7 @@ Requires: php83-php, php83-php-enchant , php83-php-pdo php83-php-tidy ,  php83-p
 Manage PHP FPM pools, and switch between PHP versions easily
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}-%{version}]
 
 %build
 perl createlinks
@@ -281,6 +281,11 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Wed Oct 23 2024 John Crisp <jcrisp@safeandsoundit.co.uk> 11.0.0-9.sme
+- add pm max_children, start_servers, min/max_spare_servers, max_requests [SME: 12729]
+- add custom session.use trans_id [SME: 12651]
+- add max_input_vars short_open_tag session.gc_probability [SME: 12499]
+
 * Mon Apr 15 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-8.sme
 - remove tar.xz from git
 
