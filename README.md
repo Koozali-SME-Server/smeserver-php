@@ -9,7 +9,7 @@ SMEServer Koozali developed git repo for smeserver-php smeserver
 <br />https://wiki.koozali.org/PHP_Software_Collections
 
 ## Bugzilla
-Show list of outstanding bugs: [here](https://bugs.koozali.org/buglist.cgi?component=smeserver-php&product=SME%20Server%2010.X&query_format=advanced&limit=0&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=CONFIRMED)
+Show list of outstanding bugs: [here] https://bugs.koozali.org/buglist.cgi?quicksearch=smeserver-php
 
 ## Description
 
