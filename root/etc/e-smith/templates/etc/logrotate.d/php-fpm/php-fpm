@@ -26,7 +26,7 @@ $OUT = "/var/log/php/*/php*fpm.log {
     notifempty
     sharedscripts
     delaycompress
-    su www www
+    su root www
     create 600 www www
     postrotate
       /sbin/e-smith/service php-fpm reload >/dev/null 2>&1 || true

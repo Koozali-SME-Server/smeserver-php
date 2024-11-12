@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 10
+%define release 11
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -281,6 +281,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Tue Nov 12 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-11.sme
+- fix error: stat of error.log failed: Permission denied  [SME: 12665]
+
 * Thu Oct 24 2024 John Crisp <jcrisp@safeandsoundit.co.uk> 11.0.0-10.sme
 - fix spec file typo
 
