@@ -1,7 +1,7 @@
 {
 
 use esmith::ConfigDB;
-
+use esmith::php;
 my $pool_db = esmith::ConfigDB->open_ro('php') || esmith::ConfigDB->create('php');
 
 foreach my $pool ($pool_db->get_all_by_prop(type => 'pool')){
@@ -11,25 +11,22 @@ foreach my $pool ($pool_db->get_all_by_prop(type => 'pool')){
 
   my $key                 = $pool->key;
   my $pool_name           = 'php' . $version . '-' . $key;
-  my $memory_limit        = $pool->prop('MemoryLimit')       || '128M';
-  my $max_execution_time  = $pool->prop('MaxExecutionTime')  || '30';
-  my $max_input_time      = $pool->prop('MaxInputTime')      || '60';
-  my $allow_url_fopen     = $pool->prop('AllowUrlFopen')     || 'disabled';
-  my $post_max_size       = $pool->prop('PostMaxSize')       || '10M';
-  my $upload_max_filesize = $pool->prop('UploadMaxFilesize') || '10M';
-  my $file_upload         = $pool->prop('FileUpload')        || 'enabled';
-  my $open_basedir        = $pool->prop('BaseDir')           || undef;
-  my $disabled_functions  = $pool->prop('DisabledFunctions') || 'system,show_source,' .
-                                                                'symlink,exec,dl,shell_exec,' .
-                                                                'passthru,phpinfo,' .
-                                                                'escapeshellarg,escapeshellcmd';
+  my $memory_limit        = $pool->prop('MemoryLimit')       || $defaultPHPproperties{'MemoryLimit'};
+  my $max_execution_time  = $pool->prop('MaxExecutionTime')  || $defaultPHPproperties{'MaxExecutionTime'};
+  my $max_input_time      = $pool->prop('MaxInputTime')      || $defaultPHPproperties{'MaxInputTime'};
+  my $allow_url_fopen     = $pool->prop('AllowUrlFopen')     || $defaultPHPproperties{'AllowUrlFopen'};
+  my $post_max_size       = $pool->prop('PostMaxSize')       || $defaultPHPproperties{'PostMaxSize'};
+  my $upload_max_filesize = $pool->prop('UploadMaxFilesize') || $defaultPHPproperties{'UploadMaxFilesize'};
+  my $file_upload         = $pool->prop('FileUpload')        || $defaultPHPproperties{'FileUpload'};
+  my $open_basedir        = $pool->prop('PHPBaseDir')        || undef;
+  my $disabled_functions  = $pool->prop('DisabledFunctions') || $defaultPHPproperties{'DisabledFunctions'};
   my $user                = $pool->prop('User')              || 'www';
   my $group               = $pool->prop('Group')             || $user;
   my $max_children        = $pool->prop('MaxChildren')       || '15';
   my $display_errors      = $pool->prop('DisplayErrors')     || 'disabled';
-  my $log_errors          = $pool->prop('LogErrors')         || 'disabled';
-  my $autoprepend         = $pool->prop('AutoPrependFile')  || 'enabled';
-  my $MailForceSender     = $pool->prop('MailForceSender')  || "php\@$DomainName";
+  my $log_errors          = $pool->prop('LogErrors')         || 'enabled';
+  my $autoprepend         = $pool->prop('AutoPrependFile')  || $defaultPHPproperties{'AutoPrependFile'};
+  my $MailForceSender     = $pool->prop('MailForceSender')  || "$key\@$DomainName";
 
   # Format vars
   my $autoprep            = ( $autoprepend eq "disabled") ? "" : "/usr/share/php/auth_translation.php";

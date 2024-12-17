@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 11
+%define release 12
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -15,7 +15,7 @@ BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArch: x86_64
 BuildRequires: smeserver-devtools
 
-Requires: smeserver-base >= 5.6.0
+Requires: smeserver-base >= 11.0.0
 Provides: e-smith-php = %{version}-%{release}
 Obsoletes: e-smith-php < %{version}
 Provides: smeserver-webapps-common
@@ -185,6 +185,27 @@ Requires: php83-php-process
 Requires: php83-php-snmp
 Requires: php83-php, php83-php-enchant , php83-php-pdo php83-php-tidy ,  php83-php-mysqlnd php83-php-pecl-zip
 
+# PHP 8.4
+Requires: php84-php-cli
+Requires: php84-php-ldap
+Requires: php84-php-pecl-imap
+Requires: php84-php-gd
+Requires: php84-php-xml
+Requires: php84-php-pecl-xmlrpc
+Requires: php84-php-soap
+Requires: php84-php-opcache
+Requires: php84-php-fpm
+Requires: php84-php-mbstring
+Requires: php84-php-json
+Requires: php84-php-bcmath
+Requires: php84-php-intl
+Requires: php84-php-pear
+Requires: php84-php-process
+Requires: php84-php-snmp
+Requires: php84 php84-php, php84-php-enchant , php84-php-pdo php84-php-tidy ,  php84-php-mysqlnd php84-php-pecl-zip
+Requires: php84-php-maxminddb, php84-php-pecl-pspel
+
+
 %description
 Manage PHP FPM pools, and switch between PHP versions easily
 
@@ -209,7 +230,7 @@ echo "[Install]" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 
 %{__mkdir_p} root/etc/e-smith/templates.metadata/etc/logrotate.d/
-for phpver in "72" "73" "74" "80" "81" "82" "83"; do
+for phpver in "72" "73" "74" "80" "81" "82" "83" "84"; do
 #needed folder
 %{__mkdir_p} root/var/log/php/php$phpver/
 %{__mkdir_p} root/var/lib/php/php$phpver/{session,tmp,opcache,wsdlcache}
@@ -235,7 +256,7 @@ echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php$phpver-php-
 done
 
 # php7*
-for phpver in   "73" "74" "80" "81" "82" "83"; do
+for phpver in   "73" "74" "80" "81" "82" "83" "84"; do
 #cp ph72 metada
 mkdir -p root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver/
 cp -a  root/etc/e-smith/templates.metadata/etc/opt/remi/php72/* root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver/
@@ -262,7 +283,7 @@ done
   --dir /var/lib/php/php/tmp 'attr(0770,root,www)' \
   --dir /var/lib/php/php/opcache 'attr(0770,root,www)' \
   --dir /var/lib/php/php/wsdlcache 'attr(0770,root,www)' \
-`for phpver in "72" "73" "74" "80" "81" "82" "83"; do  echo -n "--dir /var/log/php/php$phpver attr(0770,root,www) --dir /var/lib/php/php$phpver/session attr(0770,root,www) --dir /var/lib/php/php$phpver/tmp attr(0770,root,www) --dir /var/lib/php/php$phpver/opcache attr(0770,root,www) --dir /var/lib/php/php$phpver/wsdlcache attr(0770,root,www) ";done `	\
+`for phpver in "72" "73" "74" "80" "81" "82" "83" "84"; do  echo -n "--dir /var/log/php/php$phpver attr(0770,root,www) --dir /var/lib/php/php$phpver/session attr(0770,root,www) --dir /var/lib/php/php$phpver/tmp attr(0770,root,www) --dir /var/lib/php/php$phpver/opcache attr(0770,root,www) --dir /var/lib/php/php$phpver/wsdlcache attr(0770,root,www) ";done `	\
   > %{name}-%{version}-filelist
 
 
@@ -281,6 +302,11 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Tue Dec 17 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-12.sme
+- add php84 support [SME: 12805]
+- set php84 as default and php83 as base php as defined by module
+- set new value for  serialize_precision [SME: 12430]
+
 * Tue Nov 12 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-11.sme
 - fix error: stat of error.log failed: Permission denied  [SME: 12665]
 

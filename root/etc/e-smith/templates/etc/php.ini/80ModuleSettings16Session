@@ -23,8 +23,10 @@ session.cache_expire                   = 180
 session.use_trans_sid                  = {$phpcur->prop(SessionUseTransSid) || $php{SessionUseTransSid} || "On"}
 url_rewriter.tags                      = "a=href,area=href,frame=src,input=src,form=fakeentry"
 session.use_strict_mode                = Off
-session.sid_bits_per_character         = 4
-session.sid_length                     = 32
+{return "" if $PHP_VERSION > 84;
+$OUT .= "session.sid_length                     = 32
+session.sid_bits_per_character         = 4";
+}
 session.trans_sid_tags                 = "a=href,area=href,frame=src,form="
 {
 return "" if $PHP_VERSION eq "";

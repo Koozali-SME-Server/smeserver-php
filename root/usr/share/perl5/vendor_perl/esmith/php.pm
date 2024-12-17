@@ -4,8 +4,8 @@ use strict;
 use warnings;
 use esmith::ConfigDB;
 
-our $PHPDEFAULT = 82;
-our $BASEPHP = 81;
+our $PHPDEFAULT = 84;
+our $BASEPHP = 83;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw( listPHPVersionFPM listPHPVersionShort listPHPVersionHash listPHPVersionHashShort  PHPdefault PHPbase VersionToUse  PhpFpmVersionToUse  $defaultdisabledfunc %defaultPHPproperties);
@@ -59,6 +59,7 @@ print "'$_'\n" for listPHPVersionFPM('all');
 'php81-php-fpm'
 'php82-php-fpm'
 'php83-php-fpm'
+'php84-php-fpm'
 
 this will return only available and enabled
 print "'$_'\n" for listPHPVersionFPM('enabled');
@@ -92,6 +93,7 @@ print "'$_'\n" for listPHPVersionShort('all');
 '81'
 '82'
 '83'
+'84'
 
 this will returnonly available and enabled
 print "'$_'\n" for listPHPVersionShort('enabled');
@@ -119,6 +121,7 @@ print "$_ => $list{$_}\n" for (sort keys %list);
 81 => php81-php-fpm
 82 => php82-php-fpm
 83 => php83-php-fpm
+84 => php84-php-fpm
 
 =cut
 sub listPHPVersionHash {
@@ -148,6 +151,7 @@ print "$_ => $list{$_}\n" for (sort keys %list);
 81 => php81
 82 => php82
 83 => php83
+84 => php84
 
 =cut
 sub listPHPVersionHashShort {
