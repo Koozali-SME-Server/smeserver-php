@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 12
+%define release 13
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -145,7 +145,7 @@ Requires: php81-php-intl
 Requires: php81-php-pear
 Requires: php81-php-process
 Requires: php81-php-snmp
-Requires: php81-php, php81-php-enchant , php81-php-pdo php81-php-tidy ,  php81-php-mysqlnd php81-php-pecl-zip
+Requires: php81-php, php81-php-enchant , php81-php-pdo php81-php-tidy ,  php81-php-mysqlnd php81-php-pecl-zip, php81-php-pecl-pspell
 
 # PHP 8.2
 Requires: php82-php-cli
@@ -164,7 +164,7 @@ Requires: php82-php-intl
 Requires: php82-php-pear
 Requires: php82-php-process
 Requires: php82-php-snmp
-Requires: php82-php, php82-php-enchant , php82-php-pdo php82-php-tidy ,  php82-php-mysqlnd php82-php-pecl-zip
+Requires: php82-php, php82-php-enchant , php82-php-pdo php82-php-tidy ,  php82-php-mysqlnd php82-php-pecl-zip, php82-php-pecl-pspell
 
 # PHP 8.3
 Requires: php83-php-cli
@@ -183,7 +183,7 @@ Requires: php83-php-intl
 Requires: php83-php-pear
 Requires: php83-php-process
 Requires: php83-php-snmp
-Requires: php83-php, php83-php-enchant , php83-php-pdo php83-php-tidy ,  php83-php-mysqlnd php83-php-pecl-zip
+Requires: php83-php, php83-php-enchant , php83-php-pdo php83-php-tidy ,  php83-php-mysqlnd php83-php-pecl-zip, php83-php-pecl-pspell
 
 # PHP 8.4
 Requires: php84-php-cli
@@ -203,7 +203,7 @@ Requires: php84-php-pear
 Requires: php84-php-process
 Requires: php84-php-snmp
 Requires: php84 php84-php, php84-php-enchant , php84-php-pdo php84-php-tidy ,  php84-php-mysqlnd php84-php-pecl-zip
-Requires: php84-php-maxminddb, php84-php-pecl-pspel
+Requires: php84-php-maxminddb, php84-php-pecl-pspell
 
 
 %description
@@ -302,7 +302,7 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
-* Tue Dec 17 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-12.sme
+* Tue Dec 17 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-13.sme
 - add php84 support [SME: 12805]
 - set php84 as default and php83 as base php as defined by module
 - set new value for  serialize_precision [SME: 12430]
