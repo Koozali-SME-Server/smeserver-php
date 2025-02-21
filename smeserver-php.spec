@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 14
+%define release 15
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -28,6 +28,7 @@ Provides: smeserver-webapps-common
 #Provides: php(language) = 8.3
 Requires: tmpwatch
 Requires: logrotate
+Requires: smeserver-lib >= 11.0.0-10
 
 # Stock PHP
 Requires: php-cli
@@ -302,6 +303,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Thu Feb 20 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-15.sme
+- move template-begin-ini to smeserver-lib [SME: 12211]
+
 * Tue Dec 17 2024 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-14.sme
 - add php84 support [SME: 12805]
 - set php84 as default and php83 as base php as defined by module
