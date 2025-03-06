@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 15
+%define release 16
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -303,6 +303,12 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Wed Mar 05 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-16.sme
+- change key type from service to configuration [SME: 11367]
+  cleanup older php and php-fpm keys
+- set base php to php84 [SME: 12952]
+  fix missing bits for php74 support
+
 * Thu Feb 20 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-15.sme
 - move template-begin-ini to smeserver-lib [SME: 12211]
 

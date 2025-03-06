@@ -1,5 +1,5 @@
 
-for VER in php php72 php73 php74 php80 php81 php82 php83; do
+for VER in php php72 php73 php74 php80 php81 php82 php83 php84; do
   /usr/sbin/tmpwatch -umc --nodirs -q 7d /var/lib/php/$VER/tmp
   /usr/sbin/tmpwatch -umc --nodirs -q 7d /var/lib/php/$VER/opcache
   /usr/sbin/tmpwatch -umc --nodirs -q 7d /var/lib/php/$VER/wsdlcache

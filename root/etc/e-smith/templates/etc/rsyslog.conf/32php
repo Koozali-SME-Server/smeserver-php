@@ -18,3 +18,5 @@
 & stop
 :programname, startswith, "php83-fpm"   /var/log/php/php83/php83-fpm.log
 & stop
+:programname, startswith, "php84-fpm"   /var/log/php/php84/php84-fpm.log
+& stop

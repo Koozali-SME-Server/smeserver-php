@@ -12,6 +12,7 @@ foreach $file (qw(/etc/php.ini
 /etc/opt/remi/php81/php.ini
 /etc/opt/remi/php82/php.ini
 /etc/opt/remi/php83/php.ini
+/etc/opt/remi/php84/php.ini
 )){
   templates2events($file, qw(
         console-save
@@ -41,7 +42,7 @@ for $event (qw(smeserver-php-update webapps-update)){
   templates2events($file, $event);
 }
 
-foreach $ver (qw( 72 73 74 80 81 82 83)){
+foreach $ver (qw( 72 73 74 80 81 82 83 84)){
 foreach $service ( "php$ver-php-fpm" ){
   foreach $event (qw(webapps-update ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers )){
     safe_symlink("reload-or-restart", "root/etc/e-smith/events/$event/services2adjust/$service");
@@ -70,12 +71,13 @@ foreach $file (qw( /etc/sysconfig/php-fpm
                /etc/logrotate.d/php81-php-fpm
                /etc/logrotate.d/php82-php-fpm
                /etc/logrotate.d/php83-php-fpm
+	       /etc/logrotate.d/php84-php-fpm
                )){
   templates2events($file, qw(webapps-update bootstrap-console-save smeserver-php-update));
   }
 
 #php7*
-foreach $ver (qw( 72 73 74 80 81 82 83)){
+foreach $ver (qw( 72 73 74 80 81 82 83 84)){
 foreach $file ( "/etc/opt/remi/php$ver/php-fpm.conf",
                    "/etc/opt/remi/php$ver/php-fpm.d/www.conf",
                    "/etc/opt/remi/php$ver/php-fpm.d/ibays.conf",

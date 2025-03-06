@@ -5,7 +5,7 @@ use warnings;
 use esmith::ConfigDB;
 
 our $PHPDEFAULT = 84;
-our $BASEPHP = 83;
+our $BASEPHP = 84;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw( listPHPVersionFPM listPHPVersionShort listPHPVersionHash listPHPVersionHashShort  PHPdefault PHPbase VersionToUse  PhpFpmVersionToUse  $defaultdisabledfunc %defaultPHPproperties);

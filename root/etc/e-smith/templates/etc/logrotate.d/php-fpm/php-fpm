@@ -18,6 +18,7 @@ $OUT = "/var/log/php/*/php*fpm.log {
       /sbin/e-smith/service php81-php-fpm reload >/dev/null 2>&1 || true
       /sbin/e-smith/service php82-php-fpm reload >/dev/null 2>&1 || true
       /sbin/e-smith/service php83-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php84-php-fpm reload >/dev/null 2>&1 || true
     endscript
 }
 
@@ -37,6 +38,7 @@ $OUT = "/var/log/php/*/php*fpm.log {
       /sbin/e-smith/service php81-php-fpm reload >/dev/null 2>&1 || true
       /sbin/e-smith/service php82-php-fpm reload >/dev/null 2>&1 || true
       /sbin/e-smith/service php83-php-fpm reload >/dev/null 2>&1 || true
+      /sbin/e-smith/service php84-php-fpm reload >/dev/null 2>&1 || true
     endscript
 }
 ";
