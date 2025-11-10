@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 16
+%define release 17
 %define name smeserver-php
 %global debug_package %{nil}
 
@@ -303,6 +303,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Mon Nov 10 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-17.sme
+- fix typo [SME: 11367]
+
 * Wed Mar 05 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-16.sme
 - change key type from service to configuration [SME: 11367]
   cleanup older php and php-fpm keys
