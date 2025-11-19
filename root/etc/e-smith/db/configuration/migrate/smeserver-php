@@ -3,7 +3,7 @@
   $DB->set_prop($sservice, "type", "configuration") if  ${$sservice}{type} ne "configuration";
   }
  # delete old php entries
- foreach my $sservice (qw(php55 php55-php-fpm php56 php56-php-fpm php70 php70-php-fpm php71 php71-php-fpm)) {
+ foreach my $sservice (qw(php55 php55-php-fpm php56 php56-php-fpm )) {
   my $popd = $DB->get($sservice) or next;
   $popd->delete;
   }

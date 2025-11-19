@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 19
+%define release 20
 %define name smeserver-php
 %global debug_package %{nil}
 # define here the list of php-fpm version to set in files
@@ -8,6 +8,8 @@
 %define PHPFPMDEFAULT 74
 # define here the default php cli version
 %define BASEPHP 74
+#NB: if deprecating version 
+# also clean them using root/etc/e-smith/db/configuration/migrate/smeserver-php
 
 Summary: PHP FPM pools and more on SME Server
 Name: %{name}
@@ -387,6 +389,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Wed Nov 19 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-20.sme
+- template-begin typo [SME: 13322]
+
 * Tue Nov 18 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-19.sme
 - redirect cli php error to dedicated cli-error.log [SME: 13323]
 - https redirection by default for WebappVirtualhost SSLRequireSSL property [SME: 13310]

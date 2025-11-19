@@ -56,7 +56,7 @@ foreach $file (qw( /etc/php-fpm.conf
                      /etc/php-fpm.d/ibays.conf
                      /etc/php-fpm.d/custom.conf)){
   templates2events($file, qw(webapps-update bootstrap-console-save ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers smeserver-php-update));
-  safe_symlink('/e/etc/sysconfig/php-fpmtc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates$file/template-begin");
+  safe_symlink('/etc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates$file/template-begin");
   }
   safe_symlink('/etc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates/etc/php.ini/template-begin");
 
