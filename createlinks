@@ -4,17 +4,15 @@ use esmith::Build::CreateLinks qw(:all);
 my $ver; my $service; my $file; my $event;
 
 #old e-smith-php
-foreach $file (qw(/etc/php.ini 
-/etc/opt/remi/php72/php.ini 
-/etc/opt/remi/php73/php.ini 
-/etc/opt/remi/php74/php.ini
-/etc/opt/remi/php80/php.ini
-/etc/opt/remi/php81/php.ini
-/etc/opt/remi/php82/php.ini
-/etc/opt/remi/php83/php.ini
-/etc/opt/remi/php84/php.ini
-)){
-  templates2events($file, qw(
+templates2events("/etc/php.ini", qw(
+        console-save
+        bootstrap-console-save
+        webapps-update
+        smeserver-php-update
+    ));
+
+foreach $ver (qw(__CHANGE_PHPLIST__)){
+  templates2events("/etc/opt/remi/php$ver/php.ini", qw(
         console-save
         bootstrap-console-save
         webapps-update
@@ -42,7 +40,7 @@ for $event (qw(smeserver-php-update webapps-update)){
   templates2events($file, $event);
 }
 
-foreach $ver (qw( 72 73 74 80 81 82 83 84)){
+foreach $ver (qw(__CHANGE_PHPLIST__)){
 foreach $service ( "php$ver-php-fpm" ){
   foreach $event (qw(webapps-update ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers )){
     safe_symlink("reload-or-restart", "root/etc/e-smith/events/$event/services2adjust/$service");
@@ -58,26 +56,18 @@ foreach $file (qw( /etc/php-fpm.conf
                      /etc/php-fpm.d/ibays.conf
                      /etc/php-fpm.d/custom.conf)){
   templates2events($file, qw(webapps-update bootstrap-console-save ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers smeserver-php-update));
-  safe_symlink('/etc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates$file/template-begin");
+  safe_symlink('/e/etc/sysconfig/php-fpmtc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates$file/template-begin");
   }
   safe_symlink('/etc/e-smith/templates-default/template-begin-ini', "root/etc/e-smith/templates/etc/php.ini/template-begin");
 
-foreach $file (qw( /etc/sysconfig/php-fpm
-                     /etc/logrotate.d/php-fpm 
-               /etc/logrotate.d/php72-php-fpm
-               /etc/logrotate.d/php73-php-fpm
-               /etc/logrotate.d/php74-php-fpm
-               /etc/logrotate.d/php80-php-fpm
-               /etc/logrotate.d/php81-php-fpm
-               /etc/logrotate.d/php82-php-fpm
-               /etc/logrotate.d/php83-php-fpm
-	       /etc/logrotate.d/php84-php-fpm
-               )){
-  templates2events($file, qw(webapps-update bootstrap-console-save smeserver-php-update));
+templates2events('/etc/sysconfig/php-fpm', qw(webapps-update bootstrap-console-save smeserver-php-update));
+templates2events('/etc/logrotate.d/php-fpm', qw(webapps-update bootstrap-console-save smeserver-php-update));
+foreach $ver (qw(__CHANGE_PHPLIST__)){
+  templates2events("/etc/logrotate.d/php${ver}-php-fpm", qw(webapps-update bootstrap-console-save smeserver-php-update));
   }
 
 #php7*
-foreach $ver (qw( 72 73 74 80 81 82 83 84)){
+foreach $ver (qw(__CHANGE_PHPLIST__)){
 foreach $file ( "/etc/opt/remi/php$ver/php-fpm.conf",
                    "/etc/opt/remi/php$ver/php-fpm.d/www.conf",
                    "/etc/opt/remi/php$ver/php-fpm.d/ibays.conf",

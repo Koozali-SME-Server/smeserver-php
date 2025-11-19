@@ -1,7 +1,13 @@
 %define version 11.0.0
-%define release 17
+%define release 18
 %define name smeserver-php
 %global debug_package %{nil}
+# define here the list of php-fpm version to set in files
+%define PHPLIST 70 71 72 73 74 80 81 82 83 84 85
+# define here the default php-fpm version
+%define PHPFPMDEFAULT 74
+# define here the default php cli version
+%define BASEPHP 74
 
 Summary: PHP FPM pools and more on SME Server
 Name: %{name}
@@ -19,13 +25,6 @@ Requires: smeserver-base >= 11.0.0
 Provides: e-smith-php = %{version}-%{release}
 Obsoletes: e-smith-php < %{version}
 Provides: smeserver-webapps-common
-#Provides: php(language) = 7.2
-#Provides: php(language) = 7.3
-#Provides: php(language) = 7.4
-#Provides: php(language) = 8.0
-#Provides: php(language) = 8.1
-#Provides: php(language) = 8.2
-#Provides: php(language) = 8.3
 Requires: tmpwatch
 Requires: logrotate
 Requires: smeserver-lib >= 11.0.0-10
@@ -49,6 +48,48 @@ Requires: php-mcrypt
 Requires: php-pear
 Requires: php-process
 Requires: php-snmp
+
+# PHP 7.0
+Requires: php70-php-cli
+Requires: php70-php-ldap
+Requires: php70-php-imap
+Requires: php70-php-gd
+Requires: php70-php-xml
+Requires: php70-php-xmlrpc
+Requires: php70-php-soap
+Requires: php70-php-opcache
+Requires: php70-php-fpm
+Requires: php70-php-mbstring
+Requires: php70-php-mysql
+Requires: php70-php-json
+Requires: php70-php-bcmath
+Requires: php70-php-intl
+Requires: php70-php-mcrypt
+Requires: php70-php-pear
+Requires: php70-php-process
+Requires: php70-php-snmp
+Requires: php70-php, php70-php-enchant , php70-php-pdo php70-php-tidy ,  php70-php-mysqlnd php70-php-pecl-zip
+
+# PHP 7.1
+Requires: php71-php-cli
+Requires: php71-php-ldap
+Requires: php71-php-imap
+Requires: php71-php-gd
+Requires: php71-php-xml
+Requires: php71-php-xmlrpc
+Requires: php71-php-soap
+Requires: php71-php-opcache
+Requires: php71-php-fpm
+Requires: php71-php-mbstring
+Requires: php71-php-mysql
+Requires: php71-php-json
+Requires: php71-php-bcmath
+Requires: php71-php-intl
+Requires: php71-php-mcrypt
+Requires: php71-php-pear
+Requires: php71-php-process
+Requires: php71-php-snmp
+Requires: php71-php, php71-php-enchant , php71-php-pdo php71-php-tidy ,  php71-php-mysqlnd php71-php-pecl-zip
 
 # PHP 7.2
 Requires: php72-php-cli
@@ -206,6 +247,25 @@ Requires: php84-php-snmp
 Requires: php84 php84-php, php84-php-enchant , php84-php-pdo php84-php-tidy ,  php84-php-mysqlnd php84-php-pecl-zip
 Requires: php84-php-maxminddb, php84-php-pecl-pspell
 
+# PHP 8.5
+Requires: php85-php-cli
+Requires: php85-php-ldap
+Requires: php85-php-pecl-imap
+Requires: php85-php-gd
+Requires: php85-php-xml
+Requires: php85-php-pecl-xmlrpc
+Requires: php85-php-soap
+Requires: php85-php-opcache
+Requires: php85-php-fpm
+Requires: php85-php-mbstring
+Requires: php85-php-json
+Requires: php85-php-bcmath
+Requires: php85-php-intl
+Requires: php85-php-pear
+Requires: php85-php-process
+Requires: php85-php-snmp
+Requires: php85 php85-php, php85-php-enchant , php85-php-pdo php85-php-tidy ,  php85-php-mysqlnd php85-php-pecl-zip
+Requires: php85-php-maxminddb , php85-php-pecl-pspell
 
 %description
 Manage PHP FPM pools, and switch between PHP versions easily
@@ -214,6 +274,7 @@ Manage PHP FPM pools, and switch between PHP versions easily
 %setup -q -n %{name}-%{version}
 
 %build
+sed -i 's/__CHANGE_PHPLIST__/%{PHPLIST}/g' createlinks
 perl createlinks
 %{__mkdir_p} root/var/www/php-cgi-bin/
 %{__mkdir_p} root/var/log/php/php/
@@ -230,8 +291,9 @@ perl createlinks
 echo "[Install]" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 
+#TODO try to use macro PHPLIST in the for loops here :
 %{__mkdir_p} root/etc/e-smith/templates.metadata/etc/logrotate.d/
-for phpver in "72" "73" "74" "80" "81" "82" "83" "84"; do
+for phpver in %{PHPLIST}; do
 #needed folder
 %{__mkdir_p} root/var/log/php/php$phpver/
 %{__mkdir_p} root/var/lib/php/php$phpver/{session,tmp,opcache,wsdlcache}
@@ -256,23 +318,44 @@ echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php$phpver-php-
  
 done
 
-# php7*
-for phpver in   "73" "74" "80" "81" "82" "83" "84"; do
+# php7* "70" "71" "73" "74" "80" "81" "82" "83" "84" "85"
+for phpver in  %{PHPLIST}; do
 #cp ph72 metada
+if [ "$phpver" -eq "72"  ]; then
+  continue
+fi
 mkdir -p root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver/
 cp -a  root/etc/e-smith/templates.metadata/etc/opt/remi/php72/* root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver/
 #sed inplace
 find root/etc/e-smith/templates.metadata/etc/opt/remi/php$phpver  -type f -print0 | xargs -0 sed -i 's/72/'$phpver'/g'
 done
+#root/etc/e-smith/templates.metadata/etc/opt/remi/php72/php-fpm.conf
+#root/etc/e-smith/templates.metadata/etc/opt/remi/php72/php.ini
+#root/etc/e-smith/templates.metadata/etc/opt/remi/php72/php-fpm.d/custom.conf
+#root/etc/e-smith/templates.metadata/etc/opt/remi/php72/php-fpm.d/ibays.conf
+#root/etc/e-smith/templates.metadata/etc/opt/remi/php72/php-fpm.d/www.conf
+#root/etc/e-smith/templates.metadata/etc/opt/remi/php72/sysconfig/php-fpm
 
 # then patch the following files
+sed -i 's/__CHANGE_PHPLIST__/%{PHPLIST}/g' root/etc/e-smith/templates/etc/cron.daily/tmpwatch-php-fpm/10Defaults
+sed -i 's/__CHANGE_PHPLIST__/%{PHPLIST}/g' root/etc/e-smith/templates/etc/logrotate.d/php-fpm/php-fpm
+sed -i 's/__PHPFPMDEFAULT__/%{PHPFPMDEFAULT}/g' root/usr/share/perl5/vendor_perl/esmith/php.pm
+sed -i 's/__BASEPHP__/%{BASEPHP}/g' root/usr/share/perl5/vendor_perl/esmith/php.pm
+
 ### TODO
 ### fix those files so we do not have to patch them, but generate them or sed them to change a known WORDTODOGENERIC
-#smeserver-php-3.0.0/createlinks 
-#smeserver-php-3.0.0/root/etc/e-smith/templates/etc/cron.daily/tmpwatch-php-fpm/10Defaults
-#smeserver-php-3.0.0/root/etc/e-smith/templates/etc/logrotate.d/php-fpm/php-fpm 
-#smeserver-php-3.0.0/root/etc/e-smith/templates/etc/rsyslog.conf/32php # this one could be cut in fragments per version
-#smeserver-php-3.0.0/root/etc/e-smith/templates.metadata/etc/opt/remi/php81/php.ini
+# root/etc/e-smith/templates/etc/rsyslog.conf/32php # this one could be cut in fragments per version
+cat > root/etc/e-smith/templates/etc/rsyslog.conf/32php << EOF
+:programname, isequal, "php"            /var/log/php/php/error.log
+& stop
+:programname, startswith, "php-fpm"     /var/log/php/php/php-fpm.log
+& stop
+EOF
+
+for phpver in %{PHPLIST} ; do
+echo ":programname, startswith, \"php$phpver-fpm\"   /var/log/php/php$phpver/php$phpver-fpm.log" >> root/etc/e-smith/templates/etc/rsyslog.conf/32php
+echo '& stop' >> root/etc/e-smith/templates/etc/rsyslog.conf/32php
+done
 
 %install
 /bin/rm -rf $RPM_BUILD_ROOT
@@ -284,9 +367,8 @@ done
   --dir /var/lib/php/php/tmp 'attr(0770,root,www)' \
   --dir /var/lib/php/php/opcache 'attr(0770,root,www)' \
   --dir /var/lib/php/php/wsdlcache 'attr(0770,root,www)' \
-`for phpver in "72" "73" "74" "80" "81" "82" "83" "84"; do  echo -n "--dir /var/log/php/php$phpver attr(0770,root,www) --dir /var/lib/php/php$phpver/session attr(0770,root,www) --dir /var/lib/php/php$phpver/tmp attr(0770,root,www) --dir /var/lib/php/php$phpver/opcache attr(0770,root,www) --dir /var/lib/php/php$phpver/wsdlcache attr(0770,root,www) ";done `	\
-  > %{name}-%{version}-filelist
-
+`for phpver in %{PHPLIST}; do  echo -n "--dir /var/log/php/php$phpver attr(0770,root,www) --dir /var/lib/php/php$phpver/session attr(0770,root,www) --dir /var/lib/php/php$phpver/tmp attr(0770,root,www) --dir /var/lib/php/php$phpver/opcache attr(0770,root,www) --dir /var/lib/php/php$phpver/wsdlcache attr(0770,root,www) ";done ` \
+ > %{name}-%{version}-filelist
 
 
 %clean
@@ -303,6 +385,11 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Tue Nov 18 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-18.sme
+- add support for php 85 [SME: 13322]
+  restore supprot for php 70 71
+- strings to replace php version lists in files from spec
+
 * Mon Nov 10 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-17.sme
 - fix typo [SME: 11367]
 

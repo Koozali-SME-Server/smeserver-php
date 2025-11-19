@@ -4,8 +4,8 @@ use strict;
 use warnings;
 use esmith::ConfigDB;
 
-our $PHPDEFAULT = 84;
-our $BASEPHP = 84;
+our $PHPDEFAULT = __PHPFPMDEFAULT__;
+our $BASEPHP = __BASEPHP__;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw( listPHPVersionFPM listPHPVersionShort listPHPVersionHash listPHPVersionHashShort  PHPdefault PHPbase VersionToUse  PhpFpmVersionToUse  $defaultdisabledfunc %defaultPHPproperties);
@@ -52,6 +52,8 @@ param = (enabled, disabled, all) , if empty default to all
 this will return you an array of php-fpm versions available php version
 print "'$_'\n" for listPHPVersionFPM('all');
 'php-fpm'
+'php70-php-fpm'
+'php71-php-fpm'
 'php72-php-fpm'
 'php73-php-fpm'
 'php74-php-fpm'
@@ -60,6 +62,7 @@ print "'$_'\n" for listPHPVersionFPM('all');
 'php82-php-fpm'
 'php83-php-fpm'
 'php84-php-fpm'
+'php85-php-fpm'
 
 this will return only available and enabled
 print "'$_'\n" for listPHPVersionFPM('enabled');
@@ -86,6 +89,8 @@ param2 = will use "" as output for base php
 
 this will return you an array of numerical available php version
 print "'$_'\n" for listPHPVersionShort('all');
+'70'
+'71'
 '72'
 '73'
 '74'
@@ -94,6 +99,7 @@ print "'$_'\n" for listPHPVersionShort('all');
 '82'
 '83'
 '84'
+'85'
 
 this will returnonly available and enabled
 print "'$_'\n" for listPHPVersionShort('enabled');
@@ -114,6 +120,8 @@ param2 = if defined will use "" as key for php-fpm
 this will return you a hash order by version 
 my %list= listPHPVersionHash();
 print "$_ => $list{$_}\n" for (sort keys %list);
+70 => php70-php-fpm
+71 => php71-php-fpm
 72 => php72-php-fpm
 73 => php73-php-fpm
 74 => php74-php-fpm
@@ -122,6 +130,7 @@ print "$_ => $list{$_}\n" for (sort keys %list);
 82 => php82-php-fpm
 83 => php83-php-fpm
 84 => php84-php-fpm
+85 => php85-php-fpm
 
 =cut
 sub listPHPVersionHash {
@@ -144,6 +153,8 @@ param2 = if defined will use "" as key for php-fpm
 this will return you a hash order by version 
 my %list= listPHPVersionHashShort();
 print "$_ => $list{$_}\n" for (sort keys %list);
+70 => php70
+71 => php71
 72 => php72
 73 => php73
 74 => php74
@@ -152,6 +163,7 @@ print "$_ => $list{$_}\n" for (sort keys %list);
 82 => php82
 83 => php83
 84 => php84
+85 => php85
 
 =cut
 sub listPHPVersionHashShort {

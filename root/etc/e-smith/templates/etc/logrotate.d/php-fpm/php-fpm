@@ -11,14 +11,9 @@ $OUT = "/var/log/php/*/php*fpm.log {
     create 600 root root
     postrotate
       /sbin/e-smith/service php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php72-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php73-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php74-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php80-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php81-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php82-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php83-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php84-php-fpm reload >/dev/null 2>&1 || true
+      for VER in __CHANGE_PHPLIST__ ; do
+         /sbin/e-smith/service php${VER}-php-fpm reload >/dev/null 2>&1 || true
+      done
     endscript
 }
 
@@ -31,14 +26,9 @@ $OUT = "/var/log/php/*/php*fpm.log {
     create 600 www www
     postrotate
       /sbin/e-smith/service php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php72-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php73-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php74-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php80-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php81-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php82-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php83-php-fpm reload >/dev/null 2>&1 || true
-      /sbin/e-smith/service php84-php-fpm reload >/dev/null 2>&1 || true
+      for VER in __CHANGE_PHPLIST__ ; do
+         /sbin/e-smith/service php${VER}-php-fpm reload >/dev/null 2>&1 || true
+      done
     endscript
 }
 ";

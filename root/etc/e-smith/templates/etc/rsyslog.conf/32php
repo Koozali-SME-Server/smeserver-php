@@ -1,8 +1,11 @@
 #php logging
-
 :programname, isequal, "php"            /var/log/php/php/error.log
 & stop
 :programname, startswith, "php-fpm"     /var/log/php/php/php-fpm.log
+& stop
+:programname, startswith, "php70-fpm"   /var/log/php/php72/php72-fpm.log
+& stop
+:programname, startswith, "php71-fpm"   /var/log/php/php72/php72-fpm.log
 & stop
 :programname, startswith, "php72-fpm"   /var/log/php/php72/php72-fpm.log
 & stop
@@ -20,3 +23,6 @@
 & stop
 :programname, startswith, "php84-fpm"   /var/log/php/php84/php84-fpm.log
 & stop
+:programname, startswith, "php85-fpm"   /var/log/php/php85/php85-fpm.log
+& stop
+
