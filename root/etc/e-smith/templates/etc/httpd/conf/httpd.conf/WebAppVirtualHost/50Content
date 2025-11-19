@@ -21,16 +21,30 @@ my $ssl_port = $httpsPort;
 my $proto = ($port eq $ssl_port ) ? 'https' : 'http';
 my $socketio = $domain->prop('ProxySocketIO') || 'disabled';
 my @proxyrules = split /[,;]/, ($domain->prop('ProxyPassRules') || '');
+my $ssl_domain = $domain->prop("SSLRequireSSL") || "enabled";
+
+if (( $port ne $httpsPort ) && ( $ssl_domain eq 'enabled'))
+{
+    my $root = $domain->prop('DocumentRoot') ||
+        '/home/e-smith/files/ibays/Primary/html';
+
+    $OUT .= "    DocumentRoot $root\n";
+
+    my $portspec = ($httpsPort eq 443) ? "" : ":$httpsPort";
+    $OUT .= "    RewriteEngine on\n";
+    $OUT .= "    RewriteRule ^/(.*|\$) https://%{HTTP_HOST}${portspec}/\$1 [R,L]\n";
+    return $OUT;
+}
 
 # Custom proxypass rules
 foreach my $rule (@proxyrules){
-  my ($from, $to) = split /=/, $rule;
-  $OUT .= "    ProxyPass $from $to\n";
+    my ($from, $to) = split /=/, $rule;
+    $OUT .= "    ProxyPass $from $to\n";
 }
 
 if (@proxyrules > 0 || $target =~ m|https?://[\d\w\.\-/]*|){
-  $OUT .= "    ProxyPreserveHost on\n" if ($preserve eq 'yes');
-  $OUT .= "    RequestHeader set X-Forwarded-Proto \"$proto\"\n";
+    $OUT .= "    ProxyPreserveHost on\n" if ($preserve eq 'yes');
+    $OUT .= "    RequestHeader set X-Forwarded-Proto \"$proto\"\n";
 }
 
 # ProxyPass ?

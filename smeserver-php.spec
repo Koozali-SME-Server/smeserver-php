@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 18
+%define release 19
 %define name smeserver-php
 %global debug_package %{nil}
 # define here the list of php-fpm version to set in files
@@ -346,13 +346,15 @@ sed -i 's/__BASEPHP__/%{BASEPHP}/g' root/usr/share/perl5/vendor_perl/esmith/php.
 ### fix those files so we do not have to patch them, but generate them or sed them to change a known WORDTODOGENERIC
 # root/etc/e-smith/templates/etc/rsyslog.conf/32php # this one could be cut in fragments per version
 cat > root/etc/e-smith/templates/etc/rsyslog.conf/32php << EOF
-:programname, isequal, "php"            /var/log/php/php/error.log
+:programname, isequal, "php"            /var/log/php/php/cli-error.log
 & stop
 :programname, startswith, "php-fpm"     /var/log/php/php/php-fpm.log
 & stop
 EOF
 
 for phpver in %{PHPLIST} ; do
+echo ":programname, isequal, \"php$phpver\"   /var/log/php/php$phpver/cli-error.log" >> root/etc/e-smith/templates/etc/rsyslog.conf/32php
+echo '& stop' >> root/etc/e-smith/templates/etc/rsyslog.conf/32php
 echo ":programname, startswith, \"php$phpver-fpm\"   /var/log/php/php$phpver/php$phpver-fpm.log" >> root/etc/e-smith/templates/etc/rsyslog.conf/32php
 echo '& stop' >> root/etc/e-smith/templates/etc/rsyslog.conf/32php
 done
@@ -385,6 +387,10 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Tue Nov 18 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-19.sme
+- redirect cli php error to dedicated cli-error.log [SME: 13323]
+- https redirection by default for WebappVirtualhost SSLRequireSSL property [SME: 13310]
+
 * Tue Nov 18 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-18.sme
 - add support for php 85 [SME: 13322]
   restore supprot for php 70 71
