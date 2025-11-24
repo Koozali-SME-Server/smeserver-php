@@ -23,6 +23,10 @@ foreach $ver (qw(__CHANGE_PHPLIST__)){
 templates2events("/etc/rsyslog.conf","smeserver-php-update");
 safe_symlink("restart", "root/etc/e-smith/events/smeserver-php-update/services2adjust/rsyslog");
 
+foreach $event (qw(console-save post-install post-upgrade smeserver-update-update smeserver-php-update)) {
+  event_link( "dnf_modules_php", $event, "70");
+}
+
 #new php-fpm
 foreach  $service (qw(php-fpm)){
   foreach $event (qw(webapps-update ibay-create ibay-delete ibay-modify ibay-modify-files ibay-modify-servers )){

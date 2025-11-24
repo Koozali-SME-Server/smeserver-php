@@ -1,13 +1,15 @@
 %define version 11.0.0
-%define release 20
+%define release 21
 %define name smeserver-php
 %global debug_package %{nil}
 # define here the list of php-fpm version to set in files
 %define PHPLIST 70 71 72 73 74 80 81 82 83 84 85
 # define here the default php-fpm version
-%define PHPFPMDEFAULT 74
+%define PHPFPMDEFAULT 84
 # define here the default php cli version
-%define BASEPHP 74
+%define BASEPHP 84
+# define the php stream for dnf
+%define PHPSTREAM remi-8.4
 #NB: if deprecating version 
 # also clean them using root/etc/e-smith/db/configuration/migrate/smeserver-php
 
@@ -290,6 +292,9 @@ perl createlinks
 
 #drop in systemd file
 %{__mkdir_p} root/usr/lib/systemd/system/php-fpm.service.d
+echo "[Service]" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
+echo "RuntimeDirectory=" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
+echo "RuntimeDirectoryMode=" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 echo "[Install]" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 
@@ -320,7 +325,6 @@ echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php$phpver-php-
  
 done
 
-# php7* "70" "71" "73" "74" "80" "81" "82" "83" "84" "85"
 for phpver in  %{PHPLIST}; do
 #cp ph72 metada
 if [ "$phpver" -eq "72"  ]; then
@@ -343,6 +347,7 @@ sed -i 's/__CHANGE_PHPLIST__/%{PHPLIST}/g' root/etc/e-smith/templates/etc/cron.d
 sed -i 's/__CHANGE_PHPLIST__/%{PHPLIST}/g' root/etc/e-smith/templates/etc/logrotate.d/php-fpm/php-fpm
 sed -i 's/__PHPFPMDEFAULT__/%{PHPFPMDEFAULT}/g' root/usr/share/perl5/vendor_perl/esmith/php.pm
 sed -i 's/__BASEPHP__/%{BASEPHP}/g' root/usr/share/perl5/vendor_perl/esmith/php.pm
+sed -i 's/__PHPSTREAM__/%{PHPSTREAM}/g' root/etc/e-smith/events/actions/dnf_modules_php
 
 ### TODO
 ### fix those files so we do not have to patch them, but generate them or sed them to change a known WORDTODOGENERIC
@@ -389,6 +394,10 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Sun Nov 23 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-21.sme
+- fix wrong php default version [SME: 13331]
+- set temp /run/php-fpm folder [SME: 13325]
+
 * Wed Nov 19 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-20.sme
 - template-begin typo [SME: 13322]
 
