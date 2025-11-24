@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 21
+%define release 22
 %define name smeserver-php
 %global debug_package %{nil}
 # define here the list of php-fpm version to set in files
@@ -394,6 +394,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Mon Nov 24 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-22.sme
+- fix updating /var/run/php-fpm → /run/php-fpm [SME: 13325]
+
 * Sun Nov 23 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-21.sme
 - fix wrong php default version [SME: 13331]
 - set temp /run/php-fpm folder [SME: 13325]
