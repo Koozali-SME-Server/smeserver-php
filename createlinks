@@ -25,6 +25,7 @@ safe_symlink("restart", "root/etc/e-smith/events/smeserver-php-update/services2a
 
 foreach $event (qw(console-save post-install post-upgrade smeserver-update-update smeserver-php-update)) {
   event_link( "dnf_modules_php", $event, "70");
+  event_link( "systemd-tmpfiles-php", $event, "82");
 }
 
 #new php-fpm

@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 22
+%define release 23
 %define name smeserver-php
 %global debug_package %{nil}
 # define here the list of php-fpm version to set in files
@@ -293,9 +293,9 @@ perl createlinks
 #drop in systemd file
 %{__mkdir_p} root/usr/lib/systemd/system/php-fpm.service.d
 echo "[Service]" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
-echo "RuntimeDirectory=" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
-echo "RuntimeDirectoryMode=" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
-echo "[Install]" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
+echo "RuntimeDirectory=" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
+echo "RuntimeDirectoryMode=" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
+echo "[Install]" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 
 #TODO try to use macro PHPLIST in the for loops here :
@@ -394,8 +394,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
-* Mon Nov 24 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-22.sme
+* Mon Nov 24 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-23.sme
 - fix updating /var/run/php-fpm → /run/php-fpm [SME: 13325]
+- fix /usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 
 * Sun Nov 23 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-21.sme
 - fix wrong php default version [SME: 13331]
