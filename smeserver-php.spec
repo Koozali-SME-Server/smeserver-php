@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 23
+%define release 24
 %define name smeserver-php
 %global debug_package %{nil}
 # define here the list of php-fpm version to set in files
@@ -294,7 +294,6 @@ perl createlinks
 %{__mkdir_p} root/usr/lib/systemd/system/php-fpm.service.d
 echo "[Service]" > root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 echo "RuntimeDirectory=" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
-echo "RuntimeDirectoryMode=" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 echo "[Install]" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 echo "WantedBy=sme-server.target" >> root/usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
 
@@ -394,6 +393,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Tue Dec 02 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-24.sme
+- fix Failed to parse mode value [SME: 13325]
+
 * Mon Nov 24 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-23.sme
 - fix updating /var/run/php-fpm → /run/php-fpm [SME: 13325]
 - fix /usr/lib/systemd/system/php-fpm.service.d/51koozali.conf
