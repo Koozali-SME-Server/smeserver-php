@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 24
+%define release 25
 %define name smeserver-php
 %global debug_package %{nil}
 # define here the list of php-fpm version to set in files
@@ -393,6 +393,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Sun Apr 26 2026 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-25.sme
+- SECURITY default register_argc_argv to off  [SME: 13521]
+
 * Tue Dec 02 2025 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-24.sme
 - fix Failed to parse mode value [SME: 13325]
 

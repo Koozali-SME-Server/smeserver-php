@@ -1,6 +1,6 @@
 variables_order                        = "EGPCS"
 request_order 			       = "GP"
-register_argc_argv                     = On
+register_argc_argv                     = Off
 auto_globals_jit 		       = On
 post_max_size                          = {
     my $ms = $phpcur->prop(PostMaxSize) || $php{PostMaxSize} || "20M";
