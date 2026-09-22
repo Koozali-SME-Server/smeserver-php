@@ -1,5 +1,5 @@
 %define version 11.0.0
-%define release 25
+%define release 26
 %define name smeserver-php
 %global debug_package %{nil}
 # define here the list of php-fpm version to set in files
@@ -22,7 +22,6 @@ Group: Applications/System
 Source: %{name}-%{version}.tar.xz
 
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
-BuildArch: x86_64
 BuildRequires: smeserver-devtools
 
 Requires: smeserver-base >= 11.0.0
@@ -393,6 +392,9 @@ rm -rf $RPM_BUILD_ROOT
 %preun
 
 %changelog
+* Tue Sep 22 2026 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-26.sme
+- remove forced x86_64 build arch
+
 * Sun Apr 26 2026 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-25.sme
 - SECURITY default register_argc_argv to off  [SME: 13521]
 
