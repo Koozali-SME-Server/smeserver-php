@@ -48,7 +48,74 @@ foreach my $ibay ($a->get_all_by_prop(type => 'ibay')){
   $min_spare_servers      = ( $min_spare_servers > $max_spare_servers ) ? sprintf("%.0f", $max_spare_servers/2) : $min_spare_servers;
   $start_servers          = ( $start_servers > $max_spare_servers ) ? sprintf("%.0f", $max_spare_servers/2 +  $min_spare_servers/2  ) : $start_servers;
 
+### APCu
+    my $apcu_so = "/opt/remi/php${PHP_VERSION}/root/usr/lib64/php/modules/apcu.so";
+    my $apc = "; APCu disabled for $pool_name";
+    # Check if APCu is enabled via ibay property or global default (defaults to disabled unless set)
 
+    if (-f $apcu_so ) {
+    my $apcEnabled = (defined $ibay->prop('apcEnabled'))
+        ? $ibay->prop('apcEnabled')
+        : ($defaultPHPproperties{'apcEnabled'} || 'disabled');
+
+    # Only output settings if the Remi module is installed AND enabled in SME DB
+    if (-f $apcu_so && $apcEnabled eq 'enabled') {
+        my $apcTtl = (defined $ibay->prop('apcTtl'))
+            ? $ibay->prop('apcTtl')
+            : ($defaultPHPproperties{'apcTtl'} || '7200');
+
+        $apc .= "php_admin_flag[apc.enabled] = on\n";
+        $apc .= "php_admin_value[apc.ttl] = $apcTtl\n";
+        }
+        else {
+            $apc .= "php_admin_flag[apc.enabled] = off\n";
+    }
+  }
+
+###OPcache
+    my $opcache_so  = "/opt/remi/php${PHP_VERSION}/root/usr/lib64/php/modules/opcache.so";
+    my ($opcache_ini) = glob("/etc/opt/remi/php${PHP_VERSION}/php.d/*opcache.ini");
+    my $opcache = "; opcache disable ";
+
+    # Only configure OPcache directives if the Remi module and its active .ini exist
+    if (-f $opcache_so && defined $opcache_ini && -f $opcache_ini) {
+
+        my $opcacheEnabled = (defined $ibay->prop('opcacheEnabled'))
+            ? $ibay->prop('opcacheEnabled')
+            : ($defaultPHPproperties{'opcacheEnabled'} || 'enabled');
+
+        if ($opcacheEnabled eq 'enabled') {
+            my $opcacheRevalFreq = (defined $ibay->prop('opcacheRevalFreq'))
+                ? $ibay->prop('opcacheRevalFreq')
+                : ($defaultPHPproperties{'opcacheRevalFreq'} || '1');
+
+            my $opcacheSaveComments = (defined $ibay->prop('opcacheSaveComments'))
+                ? $ibay->prop('opcacheSaveComments')
+                : ($defaultPHPproperties{'opcacheSaveComments'} || '1');
+
+            my $opcacheJit = (defined $ibay->prop('opcacheJit'))
+                ? $ibay->prop('opcacheJit')
+                : ($defaultPHPproperties{'opcacheJit'} || 'off');
+
+            $opcache .= "php_admin_flag[opcache.enable] = on\n";
+            $opcache .= "php_admin_value[opcache.file_cache] =\n";
+            $opcache .= "php_admin_value[opcache.enable_cli] = 1\n";
+            $opcache .= "php_admin_value[opcache.save_comments] = $opcacheSaveComments\n";
+            $opcache .= "php_admin_value[opcache.revalidate_freq] = $opcacheRevalFreq\n";
+
+            # opcache.jit was introduced in PHP 8.0 (PHP_VERSION >= 80)
+            if ($PHP_VERSION >= 80) {
+                $opcache .= "php_admin_value[opcache.jit] = $opcacheJit\n";
+            }
+        }
+        else {
+            # Explicitly disable OPcache for this pool since Remi enables it globally by default
+            $opcache .= "php_admin_flag[opcache.enable] = off\n";
+            $opcache .= "php_admin_value[opcache.file_cache] =\n";
+        }
+    }
+
+#### OUTPUT
   $OUT .=<<"_EOF" if ($version eq $PHP_VERSION);
 
 [$pool_name]
@@ -57,7 +124,7 @@ group = www
 listen.owner = root
 listen.group = www
 listen.mode = 0660
-listen = /var/run/php-fpm/$pool_name.sock
+listen = /run/php-fpm/$pool_name.sock
 pm = dynamic
 pm.max_children = $max_children
 pm.start_servers = $start_servers
@@ -82,7 +149,7 @@ php_admin_value[upload_max_filesize] = $upload_max_filesize
 php_admin_value[max_input_time] = $max_input_time
 php_admin_value[disable_functions] = $disabled_functions
 php_admin_flag[allow_url_fopen] = $allow_url_fopen
-php_admin_flag[file_upload] = $file_upload
+php_admin_flag[file_uploads] = $file_upload
 php_admin_flag[session.cookie_httponly] = on
 php_admin_flag[allow_url_include] = off
 php_value[session.save_handler] = files
@@ -91,8 +158,24 @@ php_admin_value[open_basedir] = $open_basedir
 php_admin_value[max_input_vars] = $max_input_vars
 php_admin_value[short_open_tag] = $short_open_tag
 php_admin_value[session.gc_probability] = $sessionProb
+$apc
+$opcache
 
 _EOF
+
+    # Allow per-ibay custom directives from /etc/e-smith/templates-custom/etc/php-fpm.d/ibays.conf/ibays/$key/*
+    $OUT .= esmith::templates::processTemplate(
+        {
+            MORE_DATA => {
+                ibay        => $key,
+                PHP_VERSION => $PHP_VERSION,
+            },
+            TEMPLATE_PATH         => "/etc/php-fpm.d/ibays.conf/ibays/$key",
+            TEMPLATE_EXPAND_QUEUE => ['/etc/e-smith/templates-custom'],
+            OUTPUT_TYPE           => 'string',
+        }
+    ) if (-d "/etc/e-smith/templates-custom/etc/php-fpm.d/ibays.conf/ibays"  && -f "/etc/e-smith/templates-custom/etc/php-fpm.d/ibays.conf/ibays/$key" );
+
 }
 
 }

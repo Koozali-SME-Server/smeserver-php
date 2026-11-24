@@ -15,7 +15,7 @@ if ($DisableFunctions){
 }
 }
 php_admin_flag[allow_url_fopen] = { $AllowUrlFopen }
-php_admin_flag[file_upload] = { $FileUpload }
+php_admin_flag[file_uploads] = { $FileUpload }
 php_admin_flag[session.cookie_httponly] = on
 php_admin_flag[allow_url_include] = off
 php_admin_value[auto_prepend_file] = /usr/share/php/auth_translation.php

@@ -39,6 +39,75 @@ foreach my $pool ($pool_db->get_all_by_prop(type => 'pool')){
   $open_basedir       = (defined $open_basedir) ? 'php_admin_value[open_basedir] = ' . join(':', split(/[,;:]/, $open_basedir . $autoprepath)) :
                                                                                    '; open_basedir is not set';
 
+    my $apcu_so = "/opt/remi/php${PHP_VERSION}/root/usr/lib64/php/modules/apcu.so";
+    my $apc = "; APCu disabled for $pool_name";
+    # Check if APCu is enabled via ibay property or global default (defaults to disabled unless set)
+
+    if (-f $apcu_so ) {
+    my $apcEnabled = (defined $pool->prop('apcEnabled'))
+        ? $pool->prop('apcEnabled')
+        : ($defaultPHPproperties{'apcEnabled'} || 'disabled');
+
+    # Only output settings if the Remi module is installed AND enabled in SME DB
+    if (-f $apcu_so && $apcEnabled eq 'enabled') {
+        my $apcTtl = (defined $pool->prop('apcTtl'))
+            ? $pool->prop('apcTtl')
+            : ($defaultPHPproperties{'apcTtl'} || '7200');
+
+        $apc .= "php_admin_flag[apc.enabled] = on\n";
+        $apc .= "php_admin_value[apc.ttl] = $apcTtl\n";
+        }
+        else {
+            $apc .= "php_admin_flag[apc.enabled] = off\n";
+    }
+  }
+
+###OPcache
+    my $opcache_so  = "/opt/remi/php${PHP_VERSION}/root/usr/lib64/php/modules/opcache.so";
+    my ($opcache_ini) = glob("/etc/opt/remi/php${PHP_VERSION}/php.d/*opcache.ini");
+    my $opcache = "; opcache disable ";
+
+    # Only configure OPcache directives if the Remi module and its active .ini exist
+    if (-f $opcache_so && defined $opcache_ini && -f $opcache_ini) {
+
+        my $opcacheEnabled = (defined $pool->prop('opcacheEnabled'))
+            ? $pool->prop('opcacheEnabled')
+            : ($defaultPHPproperties{'opcacheEnabled'} || 'enabled');
+
+        if ($opcacheEnabled eq 'enabled') {
+
+            my $opcacheRevalFreq = (defined $pool->prop('opcacheRevalFreq'))
+                ? $pool->prop('opcacheRevalFreq')
+                : ($defaultPHPproperties{'opcacheRevalFreq'} || '1');
+
+            my $opcacheSaveComments = (defined $pool->prop('opcacheSaveComments'))
+                ? $pool->prop('opcacheSaveComments')
+                : ($defaultPHPproperties{'opcacheSaveComments'} || '1');
+
+            my $opcacheJit = (defined $pool->prop('opcacheJit'))
+                ? $pool->prop('opcacheJit')
+                : ($defaultPHPproperties{'opcacheJit'} || 'off');
+
+            $opcache .= "php_admin_flag[opcache.enable] = on\n";
+            $opcache .= "php_admin_value[opcache.file_cache] =\n";
+            $opcache .= "php_admin_value[opcache.enable_cli] = 1\n";
+            $opcache .= "php_admin_value[opcache.save_comments] = $opcacheSaveComments\n";
+            $opcache .= "php_admin_value[opcache.revalidate_freq] = $opcacheRevalFreq\n";
+            
+            # opcache.jit was introduced in PHP 8.0 (PHP_VERSION >= 80)
+            if ($PHP_VERSION >= 80) {
+                $opcache .= "php_admin_value[opcache.jit] = $opcacheJit\n";
+            }
+        }
+        else {
+            # Explicitly disable OPcache for this pool since Remi enables it globally by default
+            $opcache .= "php_admin_flag[opcache.enable] = off\n";
+            $opcache .= "php_admin_value[opcache.file_cache] =\n";
+        }
+    }
+
+
+
   $OUT .=<<"_EOF";
 
 [$pool_name]
@@ -47,7 +116,7 @@ group = $group
 listen.owner = root
 listen.group = www
 listen.mode = 0660
-listen = /var/run/php-fpm/$pool_name.sock
+listen = /run/php-fpm/$pool_name.sock
 pm = dynamic
 pm.max_children = $max_children
 pm.start_servers = 3
@@ -70,12 +139,14 @@ php_admin_value[upload_max_filesize] = $upload_max_filesize
 php_admin_value[max_input_time] = $max_input_time
 php_admin_value[disable_functions] = $disabled_functions
 php_admin_flag[allow_url_fopen] = $allow_url_fopen
-php_admin_flag[file_upload] = $file_upload
+php_admin_flag[file_uploads] = $file_upload
 php_admin_flag[session.cookie_httponly] = on
 php_admin_flag[allow_url_include] = off
 php_admin_value[auto_prepend_file] = $autoprep
 php_value[session.save_handler] = files
 $open_basedir
+$apc
+$opcache
 
 _EOF
 

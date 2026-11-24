@@ -1,1 +1,1 @@
-PIDFILE=/var/run/php-fpm/php{ $PHP_VERSION }-fpm.pid
+PIDFILE=/run/php-fpm/php{ $PHP_VERSION }-fpm.pid

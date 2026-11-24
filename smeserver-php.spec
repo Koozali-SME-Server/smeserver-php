@@ -1,9 +1,9 @@
 %define version 11.0.0
-%define release 26
+%define release 27
 %define name smeserver-php
 %global debug_package %{nil}
 # define here the list of php-fpm version to set in files
-%define PHPLIST 70 71 72 73 74 80 81 82 83 84 85
+%define PHPLIST 70 71 72 73 74 80 81 82 83 84 85 86
 # define here the default php-fpm version
 %define PHPFPMDEFAULT 84
 # define here the default php cli version
@@ -51,48 +51,6 @@ Requires: php-mcrypt
 Requires: php-pear
 Requires: php-process
 Requires: php-snmp
-
-# PHP 7.0
-Requires: php70-php-cli
-Requires: php70-php-ldap
-Requires: php70-php-imap
-Requires: php70-php-gd
-Requires: php70-php-xml
-Requires: php70-php-xmlrpc
-Requires: php70-php-soap
-Requires: php70-php-opcache
-Requires: php70-php-fpm
-Requires: php70-php-mbstring
-Requires: php70-php-mysql
-Requires: php70-php-json
-Requires: php70-php-bcmath
-Requires: php70-php-intl
-Requires: php70-php-mcrypt
-Requires: php70-php-pear
-Requires: php70-php-process
-Requires: php70-php-snmp
-Requires: php70-php, php70-php-enchant , php70-php-pdo php70-php-tidy ,  php70-php-mysqlnd php70-php-pecl-zip
-
-# PHP 7.1
-Requires: php71-php-cli
-Requires: php71-php-ldap
-Requires: php71-php-imap
-Requires: php71-php-gd
-Requires: php71-php-xml
-Requires: php71-php-xmlrpc
-Requires: php71-php-soap
-Requires: php71-php-opcache
-Requires: php71-php-fpm
-Requires: php71-php-mbstring
-Requires: php71-php-mysql
-Requires: php71-php-json
-Requires: php71-php-bcmath
-Requires: php71-php-intl
-Requires: php71-php-mcrypt
-Requires: php71-php-pear
-Requires: php71-php-process
-Requires: php71-php-snmp
-Requires: php71-php, php71-php-enchant , php71-php-pdo php71-php-tidy ,  php71-php-mysqlnd php71-php-pecl-zip
 
 # PHP 7.2
 Requires: php72-php-cli
@@ -270,8 +228,79 @@ Requires: php85-php-snmp
 Requires: php85 php85-php, php85-php-enchant , php85-php-pdo php85-php-tidy ,  php85-php-mysqlnd php85-php-pecl-zip
 Requires: php85-php-maxminddb , php85-php-pecl-pspell
 
+# PHP 8.6
+Requires: php86-php-cli
+Requires: php86-php-ldap
+#Requires: php86-php-pecl-imap https://blog.remirepo.net/pages/PECL-extensions-RPM-status not available as per 2026/11/24
+Requires: php86-php-gd
+Requires: php86-php-xml
+Requires: php86-php-pecl-xmlrpc
+Requires: php86-php-soap
+Requires: php86-php-opcache
+Requires: php86-php-fpm
+Requires: php86-php-mbstring
+Requires: php86-php-json
+Requires: php86-php-bcmath
+Requires: php86-php-intl
+Requires: php86-php-pear
+Requires: php86-php-process
+Requires: php86-php-snmp
+Requires: php86 php86-php, php86-php-enchant , php86-php-pdo php86-php-tidy ,  php86-php-mysqlnd php86-php-pecl-zip
+Requires: php86-php-maxminddb , php86-php-pecl-pspell
+
 %description
 Manage PHP FPM pools, and switch between PHP versions easily
+
+
+%package legacy
+Summary: Legacy support for PHP FPM pools on SME Server
+Requires: %{name} = %{version}-%{release}
+# PHP 7.0
+Requires: php70-php-cli
+Requires: php70-php-ldap
+Requires: php70-php-imap
+Requires: php70-php-gd
+Requires: php70-php-xml
+Requires: php70-php-xmlrpc
+Requires: php70-php-soap
+Requires: php70-php-opcache
+Requires: php70-php-fpm
+Requires: php70-php-mbstring
+Requires: php70-php-mysql
+Requires: php70-php-json
+Requires: php70-php-bcmath
+Requires: php70-php-intl
+Requires: php70-php-mcrypt
+Requires: php70-php-pear
+Requires: php70-php-process
+Requires: php70-php-snmp
+Requires: php70-php, php70-php-enchant , php70-php-pdo php70-php-tidy ,  php70-php-mysqlnd php70-php-pecl-zip
+
+# PHP 7.1
+Requires: php71-php-cli
+Requires: php71-php-ldap
+Requires: php71-php-imap
+Requires: php71-php-gd
+Requires: php71-php-xml
+Requires: php71-php-xmlrpc
+Requires: php71-php-soap
+Requires: php71-php-opcache
+Requires: php71-php-fpm
+Requires: php71-php-mbstring
+Requires: php71-php-mysql
+Requires: php71-php-json
+Requires: php71-php-bcmath
+Requires: php71-php-intl
+Requires: php71-php-mcrypt
+Requires: php71-php-pear
+Requires: php71-php-process
+Requires: php71-php-snmp
+Requires: php71-php, php71-php-enchant , php71-php-pdo php71-php-tidy ,  php71-php-mysqlnd php71-php-pecl-zip
+
+
+%description legacy
+Manage **legacy** PHP FPM pools, and switch between PHP versions easily
+
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -375,13 +404,21 @@ done
   --dir /var/lib/php/php/opcache 'attr(0770,root,www)' \
   --dir /var/lib/php/php/wsdlcache 'attr(0770,root,www)' \
 `for phpver in %{PHPLIST}; do  echo -n "--dir /var/log/php/php$phpver attr(0770,root,www) --dir /var/lib/php/php$phpver/session attr(0770,root,www) --dir /var/lib/php/php$phpver/tmp attr(0770,root,www) --dir /var/lib/php/php$phpver/opcache attr(0770,root,www) --dir /var/lib/php/php$phpver/wsdlcache attr(0770,root,www) ";done ` \
- > %{name}-%{version}-filelist
+ > %{name}-%{version}-filelist-all
 
+# Extract all paths containing 70 or 71 for the legacy package
+grep -E 'php70|php71' %{name}-%{version}-filelist-all > %{name}-%{version}-filelist-legacy
+
+# Keep everything else for the main package
+grep -vE 'php70|php71' %{name}-%{version}-filelist-all > %{name}-%{version}-filelist
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files -f %{name}-%{version}-filelist
+%defattr(-,root,root)
+
+%files legacy -f %{name}-%{version}-filelist-legacy
 %defattr(-,root,root)
 
 %pre
@@ -391,7 +428,25 @@ rm -rf $RPM_BUILD_ROOT
 
 %preun
 
+%posttrans
+if ! rpm -q %{name}-legacy >/dev/null 2>&1; then
+    if rpm -qa 'php70*' 'php71*' | grep -q .; then
+        echo "WARNING: Legacy PHP 7.0/7.1 packages were detected on your system."
+        echo "If you no longer need them, run: dnf remove 'php70*' 'php71*'"
+        echo "Otherwise, install %{name}-legacy to keep PHP 7.0/7.1 pool support."
+    fi
+fi
+
 %changelog
+* Tue Nov 24 2026 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-27.sme
+- do not require legacy php unsuported version [SME: 13861]
+  add a message to invite admin to remove them
+  create a rpm to handle those legacy version in case one want them 
+- add php 86 support [SME: 13860]
+- fix file_uploads typo in fpm [SME: 13815]
+- handle apcu and opcache settings per pool/fpm service [SME: 13832]
+- allow template-custom for more settings per ibays [SME: 12302]
+
 * Tue Sep 22 2026 Jean-Philippe Pialasse <jpp@koozali.org> 11.0.0-26.sme
 - remove forced x86_64 build arch
 

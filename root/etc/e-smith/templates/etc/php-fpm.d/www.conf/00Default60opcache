@@ -1,0 +1,44 @@
+{
+    use esmith::ConfigDB;
+    my $c = esmith::ConfigDB->open_ro || die "Couldn't opeen the configuration database\n";
+    my $srv = ( $PHP_VERSION ne '') ? 'php' . $PHP_VERSION . '-php-fpm' : 'php-fpm';
+    my $php = $c->get( $srv );
+    my $is_remi = (defined $PHP_VERSION && $PHP_VERSION ne '');
+    my $OUT = "";
+
+    # 1. OPcache SHM sizing
+    my $opcache_so = $is_remi
+        ? "/opt/remi/php${PHP_VERSION}/root/usr/lib64/php/modules/opcache.so"
+        : "/usr/lib64/php/modules/opcache.so";
+
+    if (-f $opcache_so) {
+        my $opcacheMem = ($php && defined $php->prop('opcacheMem'))
+            ? $php->prop('opcacheMem') : '128';
+        my $opcacheBuff = ($php && defined $php->prop('opcacheBuff'))
+            ? $php->prop('opcacheBuff') : '16';
+        my $opcacheAccFiles = ($php && defined $php->prop('opcacheAccFiles'))
+            ? $php->prop('opcacheAccFiles') : '10000';
+
+        $OUT .= "\n; OPcache global SHM sizing\n";
+        $OUT .= "php_admin_value[opcache.memory_consumption] = $opcacheMem\n";
+        $OUT .= "php_admin_value[opcache.interned_strings_buffer] = $opcacheBuff\n";
+        $OUT .= "php_admin_value[opcache.max_accelerated_files] = $opcacheAccFiles\n";
+    }
+
+    # 2. APCu SHM sizing
+    my $apcu_so = $is_remi
+        ? "/opt/remi/php${PHP_VERSION}/root/usr/lib64/php/modules/apcu.so"
+        : "/usr/lib64/php/modules/apcu.so";
+
+    if (-f $apcu_so) {
+        my $apcShmSize = ($php && defined $php->prop('apcShmSize'))
+            ? $php->prop('apcShmSize') : '64M';
+        my $apcEntriesHint = ($php && defined $php->prop('apcEntriesHint'))
+            ? $php->prop('apcEntriesHint') : '4096';
+
+        $OUT .= "\n; APCu global SHM sizing\n";
+        $OUT .= "php_admin_value[apc.shm_size] = $apcShmSize\n";
+        $OUT .= "php_admin_value[apc.entries_hint] = $apcEntriesHint\n";
+    }
+}
+

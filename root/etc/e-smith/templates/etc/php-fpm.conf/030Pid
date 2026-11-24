@@ -1,1 +1,1 @@
-pid = /var/run/php-fpm/php{ $PHP_VERSION }-fpm.pid
+pid = /run/php-fpm/php{ $PHP_VERSION }-fpm.pid
